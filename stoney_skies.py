@@ -20,23 +20,24 @@ class Marker:
         self.y2 = yc + self.radius
         self.id = canvas.create_oval(self.x1, self.y1, self.x2, self.y2, fill='blue')
 
-
-
 # </cf> Classes
 
 # <cf> Functions
 
+
 def place_marker(event):
     global marker_ID
-    print(f"Blue has ID {marker_ID}")
     Marker(canvas, event.x, event.y)
     marker_ID += 1
-    print(f"Next will have marker ID {marker_ID}")
-    # print ("clicked at", event.x, event.y)
+
+
+def clear_canvas():
+    canvas.delete('all')
 
 # </cf> Functions
 
 # <cf> drawing the interface
+
 
 root_width = 1120   # width of the main window
 root_height = 700   # height of the main window
@@ -56,7 +57,7 @@ b_undo.pack(pady=5, fill='x')
 b_redo = tk.Button(control, text="Redo", font=30)
 b_redo.pack(pady=5, fill='x')
 
-b_clear = tk.Button(control, text="Clear canvas", font=30)
+b_clear = tk.Button(control, text="Clear canvas", font=30, command=clear_canvas)
 b_clear.pack(pady=5, fill='x')
 
 b_clear = tk.Button(control, text="Test", font=30)
