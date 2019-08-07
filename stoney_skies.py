@@ -6,24 +6,28 @@
 
 import tkinter as tk
 
-marker_ID = 0
-list_of_markers = []
+marker_ID = 0   # For assigning IDs to the markers. Probably unnecessary.
+list_of_markers = []    # The "collection" of all markers.
 
 # <cf> Classes
 
 
 class Marker:
+    # The class for the user-added markers. Take center coordinates. Color
+    # will be unnecessary in the future and is only used for development.
     def __init__(self, canvas, xc, yc, color):
-        self.radius = 7
+        self.radius = 7     # Radius is fixed. Might be an option later.
         self.xc = xc
         self.yc = yc
-        self.x1 = xc - self.radius
+        self.x1 = xc - self.radius  # Because the oval takes coordinates of the
+        # bounding box, that has to be calculates from given center coords.
         self.y1 = yc - self.radius
         self.x2 = xc + self.radius
         self.y2 = yc + self.radius
         self.id = canvas.create_oval(self.x1, self.y1, self.x2, self.y2, fill=color)
 
     def return_coordinates(self):
+        # returns the coordinates of a marker as list
         coordinates = [self.xc, self.yc]
         return(coordinates)
 
@@ -33,6 +37,8 @@ class Marker:
 
 
 def place_marker(event):
+    # Funuction to add the marker. Adds it to list_of_markers. marker_ID
+    # probably unnecessary.
     global marker_ID
     global list_of_markers
     list_of_markers.append(Marker(canvas, event.x, event.y, 'red'))
@@ -40,14 +46,18 @@ def place_marker(event):
 
 
 def clear_canvas():
+    # Function to clear the entire canvas of all markers
     canvas.delete('all')
 
 
 def undo():
+    # Undo function deletes the marker itself as well as its object held
+    # in the list_of_markers.
     canvas.delete(list_of_markers[-1].id)
     del list_of_markers[-1]
 
 def test():
+    # Function for testing function. Gets called by button of same name.
     pass
 
 
