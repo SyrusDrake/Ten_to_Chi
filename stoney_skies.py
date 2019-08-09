@@ -86,11 +86,11 @@ canvas.bind('<Button-1>', place_marker)
 canvas.bind('<Button-3>', delete_marker)
 canvas.place(relheight=0.90, relwidth=0.75, rely=0.05, relx=0.2)
 
-b_undo = tk.Button(control, text="Undo", font=30)
-b_undo.pack(pady=5, fill='x')
+# b_undo = tk.Button(control, text="Undo", font=30)
+# b_undo.pack(pady=5, fill='x')
 
-b_redo = tk.Button(control, text="Redo", font=30)
-b_redo.pack(pady=5, fill='x')
+# b_redo = tk.Button(control, text="Redo", font=30)
+# b_redo.pack(pady=5, fill='x')
 
 b_clear = tk.Button(control, text="Clear canvas", font=30, command=clear_canvas)
 b_clear.pack(pady=5, fill='x')
