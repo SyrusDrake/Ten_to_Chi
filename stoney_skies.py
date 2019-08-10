@@ -8,6 +8,7 @@ import tkinter as tk
 
 marker_ID = 1   # For assigning IDs to the markers. Necessary becausue canvas object count starts at
 marker_list = []    # The "collection" of all markers.
+version = " alpha"
 
 # <cf> Classes
 
@@ -46,15 +47,8 @@ def place_marker(event):
 
 
 def clear_canvas():
-    # Function to clear the entire canvas of all markers
+    # Function to clear the entire canvas of all markers but not the grid
     canvas.delete('marker')
-
-
-# def undo():
-    # Undo function deletes the marker itself as well as its object held
-    # in the marker_list.
-    # canvas.delete(marker_list[-1].id)
-    # del marker_list[-1]
 
 
 def delete_marker(event):
@@ -64,11 +58,12 @@ def delete_marker(event):
     del marker_list[object_id-1]  # deletes the relevant marker object
 
 
-def configure(event):
-    canvas.delete("grid")
-    w = event.width
+def draw_grid(event):
+    # Creates a grid over the canvas. Not sure if it will remain necessary.
+    canvas.delete("grid")   # Deletes grid so it doesn't "smear" when resizing
+    w = event.width     # Passes the currenz size of the canvas
     h = event.height
-    r = 20
+    r = 20  # Determines the size of the grid. The bigger this number the smaller the grid.
     for x in range(0, r):
         canvas.create_line((w/r)*x, 0, (w/r)*x, h, tag=('grid'))
     for y in range(0, r):
@@ -76,13 +71,8 @@ def configure(event):
 
 
 def test():
-    marker_coordinates = []
-    for i in range(0, len(marker_list)):
-        marker_coordinates.append(marker_list[i].get_coordinates())
-
-    print(marker_coordinates)
     # Function for testing function. Gets called by button of same name.
-    # pass
+    pass
 
 
 # </cf> Functions
@@ -94,20 +84,15 @@ root_width = 1120   # width of the main window
 root_height = 700   # height of the main window
 
 root = tk.Tk()
+root.title(f"Stoney Skies v.{version}")
 
-control = tk.Frame(bg='green')
+control = tk.Frame()
 control.place(relheight=0.9, relwidth=0.18, rely=0.05, relx=0.01)
 canvas = tk.Canvas(cursor='crosshair', bd=5, relief='groove')
-canvas.bind("<Configure>", configure)
+canvas.bind("<Configure>", draw_grid)
 canvas.bind('<Button-1>', place_marker)
 canvas.bind('<Button-3>', delete_marker)
 canvas.place(relheight=0.90, relwidth=0.75, rely=0.05, relx=0.2)
-
-# b_undo = tk.Button(control, text="Undo", font=30)
-# b_undo.pack(pady=5, fill='x')
-
-# b_redo = tk.Button(control, text="Redo", font=30)
-# b_redo.pack(pady=5, fill='x')
 
 b_clear = tk.Button(control, text="Clear canvas", font=30, command=clear_canvas)
 b_clear.pack(pady=5, fill='x')
