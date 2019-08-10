@@ -5,6 +5,7 @@
 # Last change: 10.08.2019
 
 import tkinter as tk
+from tkinter import filedialog
 from PIL import ImageTk, Image
 
 marker_ID = 1   # For assigning IDs to the markers. Necessary becausue canvas object count starts at
@@ -43,7 +44,7 @@ def place_marker(event):
     # Funuction to add the marker. Adds it to marker_list.
     global marker_ID
     global marker_list
-    marker_list.append(Marker(canvas, event.x, event.y, 'red'))
+    marker_list.append(Marker(canvas, event.x, event.y, 'white'))
     print(marker_list)
     marker_ID += 1
 
@@ -72,6 +73,13 @@ def draw_grid(event):
         canvas.create_line(0, (h/r)*y, w, (h/r)*y, tag=('grid'))
 
 
+def import_image():
+    global img
+    filename = filedialog.askopenfilename()
+    img = ImageTk.PhotoImage(Image.open(filename))
+    canvas.create_image(0, 0, anchor='nw', image=img)
+
+
 def test():
     # Function for testing function. Gets called by button of same name.
     pass
@@ -87,20 +95,23 @@ root_height = 700   # height of the main window
 
 root = tk.Tk()
 root.title(f"Stoney Skies v.{version}")
-img = ImageTk.PhotoImage(Image.open("D:\Dropbox\Programmieren\Python\Stoney_Skies\image.jpg"))
-
 
 control = tk.Frame()
 control.place(relheight=0.9, relwidth=0.18, rely=0.05, relx=0.01)
 canvas = tk.Canvas(cursor='crosshair', bd=5, relief='groove')
-canvas.bind("<Configure>", draw_grid)
+#canvas.bind("<Configure>", draw_grid)
 canvas.bind('<Button-1>', place_marker)
 canvas.bind('<Button-3>', delete_marker)
 canvas.place(relheight=0.90, relwidth=0.75, rely=0.05, relx=0.2)
-canvas.create_image(0, 0, anchor='nw', image=img)
+#img = ImageTk.PhotoImage(Image.open('D:\Dropbox\Programmieren\Python\Stoney_Skies\image.jpg'))
+#canvas.create_image(0, 0, anchor='nw', image=img)
+
 
 b_clear = tk.Button(control, text="Clear canvas", font=30, command=clear_canvas)
 b_clear.pack(pady=5, fill='x')
+
+b_test = tk.Button(control, text="Import", font=30, command=import_image)
+b_test.pack(pady=5, fill='x')
 
 b_test = tk.Button(control, text="Test", font=30, command=test)
 b_test.pack(pady=5, fill='x')
