@@ -2,12 +2,12 @@
 # Stoney Skies Alpha
 # This version is non-functional and used for the design and development of
 # the GUI.
-# Last change: 09.08.2019
+# Last change: 10.08.2019
 
 import tkinter as tk
 
 marker_ID = 1   # For assigning IDs to the markers. Necessary becausue canvas object count starts at
-marker_dictionary = {}    # The "collection" of all markers.
+marker_list = []    # The "collection" of all markers.
 
 # <cf> Classes
 
@@ -24,11 +24,11 @@ class Marker:
         self.y1 = yc - self.radius
         self.x2 = xc + self.radius
         self.y2 = yc + self.radius
-        self.id = canvas.create_oval(self.x1, self.y1, self.x2, self.y2, fill=color)
+        self.id = canvas.create_oval(self.x1, self.y1, self.x2, self.y2, fill=color, tag='marker')
 
-    def return_coordinates(self):
+    def get_coordinates(self):
         # returns the coordinates of a marker as list
-        coordinates = [self.xc, self.yc]
+        coordinates = (self.xc, self.yc)
         return(coordinates)
 
 # </cf> Classes
@@ -37,36 +37,52 @@ class Marker:
 
 
 def place_marker(event):
-    # Funuction to add the marker. Adds it to marker_dictionary.
+    # Funuction to add the marker. Adds it to marker_list.
     global marker_ID
-    global marker_dictionary
-    marker_dictionary[marker_ID] = (Marker(canvas, event.x, event.y, 'red'))
-    print(marker_dictionary)
+    global marker_list
+    marker_list.append(Marker(canvas, event.x, event.y, 'red'))
+    print(marker_list)
     marker_ID += 1
 
 
 def clear_canvas():
     # Function to clear the entire canvas of all markers
-    canvas.delete('all')
+    canvas.delete('marker')
 
 
 # def undo():
     # Undo function deletes the marker itself as well as its object held
-    # in the marker_dictionary.
-    # canvas.delete(marker_dictionary[-1].id)
-    # del marker_dictionary[-1]
+    # in the marker_list.
+    # canvas.delete(marker_list[-1].id)
+    # del marker_list[-1]
 
 
 def delete_marker(event):
     # Function to delete the current marker under the mouse pointer.
     object_id = (canvas.find_withtag('current')[0])  # object ID under cursor
     canvas.delete(object_id)  # deletes the object under cursor
-    del marker_dictionary[object_id]  # deletes the relevant marker object
+    del marker_list[object_id-1]  # deletes the relevant marker object
+
+
+def configure(event):
+    canvas.delete("grid")
+    w = event.width
+    h = event.height
+    r = 20
+    for x in range(0, r):
+        canvas.create_line((w/r)*x, 0, (w/r)*x, h, tag=('grid'))
+    for y in range(0, r):
+        canvas.create_line(0, (h/r)*y, w, (h/r)*y, tag=('grid'))
 
 
 def test():
+    marker_coordinates = []
+    for i in range(0, len(marker_list)):
+        marker_coordinates.append(marker_list[i].get_coordinates())
+
+    print(marker_coordinates)
     # Function for testing function. Gets called by button of same name.
-    pass
+    # pass
 
 
 # </cf> Functions
@@ -82,6 +98,7 @@ root = tk.Tk()
 control = tk.Frame(bg='green')
 control.place(relheight=0.9, relwidth=0.18, rely=0.05, relx=0.01)
 canvas = tk.Canvas(cursor='crosshair', bd=5, relief='groove')
+canvas.bind("<Configure>", configure)
 canvas.bind('<Button-1>', place_marker)
 canvas.bind('<Button-3>', delete_marker)
 canvas.place(relheight=0.90, relwidth=0.75, rely=0.05, relx=0.2)
