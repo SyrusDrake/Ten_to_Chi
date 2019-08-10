@@ -5,10 +5,12 @@
 # Last change: 10.08.2019
 
 import tkinter as tk
+from PIL import ImageTk, Image
 
 marker_ID = 1   # For assigning IDs to the markers. Necessary becausue canvas object count starts at
 marker_list = []    # The "collection" of all markers.
 version = " alpha"
+
 
 # <cf> Classes
 
@@ -85,6 +87,8 @@ root_height = 700   # height of the main window
 
 root = tk.Tk()
 root.title(f"Stoney Skies v.{version}")
+img = ImageTk.PhotoImage(Image.open("D:\Dropbox\Programmieren\Python\Stoney_Skies\image.jpg"))
+
 
 control = tk.Frame()
 control.place(relheight=0.9, relwidth=0.18, rely=0.05, relx=0.01)
@@ -93,6 +97,7 @@ canvas.bind("<Configure>", draw_grid)
 canvas.bind('<Button-1>', place_marker)
 canvas.bind('<Button-3>', delete_marker)
 canvas.place(relheight=0.90, relwidth=0.75, rely=0.05, relx=0.2)
+canvas.create_image(0, 0, anchor='nw', image=img)
 
 b_clear = tk.Button(control, text="Clear canvas", font=30, command=clear_canvas)
 b_clear.pack(pady=5, fill='x')
