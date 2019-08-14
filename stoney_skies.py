@@ -2,7 +2,7 @@
 # Stoney Skies Alpha
 # This version is non-functional and used for the design and development of
 # the GUI.
-# Last change: 10.08.2019
+# Last change: 13.08.2019
 
 import tkinter as tk
 from tkinter import filedialog
@@ -34,6 +34,7 @@ class Marker:
         # returns the coordinates of a marker as list
         coordinates = (self.xc, self.yc)
         return(coordinates)
+
 
 # </cf> Classes
 
@@ -74,13 +75,23 @@ def draw_grid(event):
 
 
 def import_image():
+    # function to import the reference image
     global img
-    filename = filedialog.askopenfilename()
+    filename = filedialog.askopenfilename()     # The explorer window to let the user pick the file
     img = ImageTk.PhotoImage(Image.open(filename))
     canvas.create_image(0, 0, anchor='nw', image=img)
 
 
-def test():
+def set_scale(event):
+    # Creates a selector to let the user define the area of interest
+    canvas.delete('scale')
+    canvas.create_line(p_middle.get()-(p_width.get()/2), 0, p_middle.get()-(p_width.get()/2), canvas_height, tag=('scale'))
+    canvas.create_line(p_middle.get()+(p_width.get()/2), 0, p_middle.get()+(p_width.get()/2), canvas_height, tag=('scale'))
+    canvas.create_line(p_middle.get(), 0, p_middle.get(), canvas_height, fill='red', tag=('scale'))
+
+
+def test(event):
+
     # Function for testing function. Gets called by button of same name.
     pass
 
@@ -92,17 +103,21 @@ def test():
 
 root_width = 1120   # width of the main window
 root_height = 700   # height of the main window
+control_width = root_width*0.18     # Width of the control panel on the left
+control_height = root_height*0.9
+canvas_width = root_width*0.75  # Width of the canvas
+canvas_height = root_height*0.9
 
 root = tk.Tk()
 root.title(f"Stoney Skies v.{version}")
 
 control = tk.Frame()
-control.place(relheight=0.9, relwidth=0.18, rely=0.05, relx=0.01)
-canvas = tk.Canvas(cursor='crosshair', bd=5, relief='groove')
+control.pack(side='left')
+canvas = tk.Canvas(height=canvas_height, width=canvas_width, cursor='crosshair', bd=5, relief='groove')
 #canvas.bind("<Configure>", draw_grid)
 canvas.bind('<Button-1>', place_marker)
 canvas.bind('<Button-3>', delete_marker)
-canvas.place(relheight=0.90, relwidth=0.75, rely=0.05, relx=0.2)
+canvas.pack()
 #img = ImageTk.PhotoImage(Image.open('D:\Dropbox\Programmieren\Python\Stoney_Skies\image.jpg'))
 #canvas.create_image(0, 0, anchor='nw', image=img)
 
@@ -118,6 +133,14 @@ b_test.pack(pady=5, fill='x')
 
 b_quit = tk.Button(control, text="Quit", font=30, command=root.quit)
 b_quit.pack(pady=5, fill='x')
+
+p_width = tk.Scale(control, from_=0, to=canvas_width, orient='horizontal', label="Area width", command=set_scale)
+p_width.pack()
+
+p_middle = tk.Scale(control, from_=0, to=canvas_width, orient='horizontal', label="Area center", command=set_scale)
+p_middle.set(canvas_width/2)
+p_middle.pack()
+
 
 # </cf> drawing the interface
 
