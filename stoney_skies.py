@@ -2,47 +2,56 @@
 # Stoney Skies Alpha
 # This version is non-functional and used for the design and development of
 # the GUI.
-# Last change: 10.08.2019
+# Last change: 13.08.2019
 
 import tkinter as tk
+from tkinter import filedialog
+from PIL import ImageTk, Image
+import SetMarkers as mk
 
 marker_ID = 1   # For assigning IDs to the markers. Necessary becausue canvas object count starts at
 marker_list = []    # The "collection" of all markers.
 version = " alpha"
 
+# <cf> Star coordinates
+
+# For testing purposes only. Star coordinates will be imported from external file in the future.
+
+stretch = 20.9
+
+star_list = {'star1': (43.54361, 52.82556),
+             'star2': (50.63028, 55.22028),
+             'star3': (51.04972, 58.82917),
+             'star4': (59.89667, 60.15667),
+             'star5': (55.4325, 64.61861)}
+
+z1, a1 = star_list['star1']
+z2, a2 = star_list['star2']
+z3, a3 = star_list['star3']
+z4, a4 = star_list['star4']
+z5, a5 = star_list['star5']
+
+v2 = (round(z2-z1, 2)*stretch, round(a2-a1, 2)*stretch)
+v3 = (round(z3-z1, 2)*stretch, round(a3-a1, 2)*stretch)
+v4 = (round(z4-z1, 2)*stretch, round(a4-a1, 2)*stretch)
+v5 = (round(z5-z1, 2)*stretch, round(a5-a1, 2)*stretch)
+
+
+# </cf> Star coordinates
+
 # <cf> Classes
 
-
-class Marker:
-    # The class for the user-added markers. Take center coordinates. Color
-    # will be unnecessary in the future and is only used for development.
-    def __init__(self, canvas, xc, yc, color):
-        self.radius = 7     # Radius is fixed. Might be an option later.
-        self.xc = xc
-        self.yc = yc
-        self.x1 = xc - self.radius  # Because the oval takes coordinates of the
-        # bounding box, that has to be calculates from given center coords.
-        self.y1 = yc - self.radius
-        self.x2 = xc + self.radius
-        self.y2 = yc + self.radius
-        self.id = canvas.create_oval(self.x1, self.y1, self.x2, self.y2, fill=color, tag='marker')
-
-    def get_coordinates(self):
-        # returns the coordinates of a marker as list
-        coordinates = (self.xc, self.yc)
-        return(coordinates)
 
 # </cf> Classes
 
 # <cf> Functions
 
-
 def place_marker(event):
     # Funuction to add the marker. Adds it to marker_list.
     global marker_ID
     global marker_list
-    marker_list.append(Marker(canvas, event.x, event.y, 'red'))
-    print(marker_list)
+    marker_list.append(mk.Marker(canvas, event.x, event.y, 'white'))
+    print(marker_list[-1].get_coordinates())
     marker_ID += 1
 
 
@@ -70,9 +79,37 @@ def draw_grid(event):
         canvas.create_line(0, (h/r)*y, w, (h/r)*y, tag=('grid'))
 
 
+def import_image():
+    # function to import the reference image
+    global img
+    filename = filedialog.askopenfilename()     # The explorer window to let the user pick the file
+    img = ImageTk.PhotoImage(Image.open(filename))
+    canvas.create_image(0, 0, anchor='nw', image=img)
+
+
+def set_scale(event):
+    # Creates a selector to let the user define the area of interest
+    canvas.delete('scale')
+    canvas.create_line(p_middle.get()-(p_width.get()/2), 0, p_middle.get()-(p_width.get()/2), canvas_height, tag=('scale'))
+    canvas.create_line(p_middle.get()+(p_width.get()/2), 0, p_middle.get()+(p_width.get()/2), canvas_height, tag=('scale'))
+    canvas.create_line(p_middle.get(), 0, p_middle.get(), canvas_height, fill='red', tag=('scale'))
+
+
 def test():
+
+    c1 = marker_list[0].get_coordinates()
+    c2 = (c1[0]+v2[0], c1[1]-v2[1])
+    c3 = (c1[0]+v3[0], c1[1]-v3[1])
+    c4 = (c1[0]+v4[0], c1[1]-v4[1])
+    c5 = (c1[0]+v5[0], c1[1]-v5[1])
+
+    mk.Marker(canvas, *c1, 'blue')
+    mk.Marker(canvas, *c2, 'red')
+    mk.Marker(canvas, *c3, 'red')
+    mk.Marker(canvas, *c4, 'red')
+    mk.Marker(canvas, *c5, 'red')
     # Function for testing function. Gets called by button of same name.
-    pass
+    # pass
 
 
 # </cf> Functions
@@ -82,26 +119,44 @@ def test():
 
 root_width = 1120   # width of the main window
 root_height = 700   # height of the main window
+control_width = root_width*0.18     # Width of the control panel on the left
+control_height = root_height*0.9
+canvas_width = root_width*0.75  # Width of the canvas
+canvas_height = root_height*0.9
 
 root = tk.Tk()
 root.title(f"Stoney Skies v.{version}")
 
 control = tk.Frame()
-control.place(relheight=0.9, relwidth=0.18, rely=0.05, relx=0.01)
-canvas = tk.Canvas(cursor='crosshair', bd=5, relief='groove')
-canvas.bind("<Configure>", draw_grid)
+control.pack(side='left')
+canvas = tk.Canvas(height=canvas_height, width=canvas_width, cursor='crosshair', bd=5, relief='groove')
+#canvas.bind("<Configure>", draw_grid)
 canvas.bind('<Button-1>', place_marker)
 canvas.bind('<Button-3>', delete_marker)
-canvas.place(relheight=0.90, relwidth=0.75, rely=0.05, relx=0.2)
+canvas.pack()
+#img = ImageTk.PhotoImage(Image.open('D:\Dropbox\Programmieren\Python\Stoney_Skies\image.jpg'))
+#canvas.create_image(0, 0, anchor='nw', image=img)
+
 
 b_clear = tk.Button(control, text="Clear canvas", font=30, command=clear_canvas)
 b_clear.pack(pady=5, fill='x')
+
+b_test = tk.Button(control, text="Import", font=30, command=import_image)
+b_test.pack(pady=5, fill='x')
 
 b_test = tk.Button(control, text="Test", font=30, command=test)
 b_test.pack(pady=5, fill='x')
 
 b_quit = tk.Button(control, text="Quit", font=30, command=root.quit)
 b_quit.pack(pady=5, fill='x')
+
+p_width = tk.Scale(control, from_=0, to=canvas_width, orient='horizontal', label="Area width", command=set_scale)
+p_width.pack()
+
+p_middle = tk.Scale(control, from_=0, to=canvas_width, orient='horizontal', label="Area center", command=set_scale)
+p_middle.set(canvas_width/2)
+p_middle.pack()
+
 
 # </cf> drawing the interface
 
