@@ -1,11 +1,13 @@
-hip = open('hip_main.dat')
+import math as m
+
+hip = open('hip_test.dat')
 lines = hip.readlines()  # Puts every line of the catalog in an list item
 stars = []  # Empty list of stars
-ngstars = []
-ybp = 2  # Years before present
-latitude = 47
+ngstars = []  # List of stars with missing valeus
+latitude = 47  # Latitde of the observer
+ybp = 10000  # Years before present
 deg_per_mas = 0.000000278  # conversion factor from miliarcseconds to degrees
-dec_limit = -(90 - latitude)
+dec_limit = -(90 - latitude)  # Declination limit based on observer latitude
 
 
 # get all star
@@ -16,10 +18,17 @@ def chop(line):
         choppedline.append(item.strip())    # Removes whitepsaces (?)
     return choppedline
 
-
+# <cf> Function to calculate new coordinates based on proper motion
 def calculate_new_coordinates(ra, de, pm_ra, pm_de, ybp):
-    new_ra = ra + ((pm_ra * ybp) % 360)
-    new_de = de + ((pm_de * ybp) % 360)
+    if (pm_ra * ybp >= 360):
+        new_ra = ra + ((pm_ra * ybp) % 360)
+    else:
+        new_ra = ra + ((pm_ra * ybp))
+
+    if ((pm_de * ybp) >= 360):
+        new_de = de + ((pm_de * ybp) % 360)
+    else:
+        new_de = de + ((pm_de * ybp))
 
     if new_ra >= 360:
         new_ra = new_ra - 360
@@ -34,19 +43,29 @@ def calculate_new_coordinates(ra, de, pm_ra, pm_de, ybp):
             new_ra = new_ra + 180
 
     return new_ra, new_de
+# </cf>
 
 
-newstar = {}
-newstar['hip'] = int(000)
-newstar['mag'] = float(1.0)
-newstar['ra'] = float(10.0)
-newstar['de'] = float(45.0)
-newstar['pm_ra'] = 1.0
-newstar['pm_de'] = 2.0
-newstar['cal_ra'], newstar['cal_de'] = calculate_new_coordinates(newstar['ra'], newstar['de'], newstar['pm_ra'], newstar['pm_de'], ybp)
-stars.append(newstar)
+# <cf> Function to calculate angular distance between stars
+def calculate_angular_distance(hip1, hip2):  # Takes HIP IDs as input
+    ra1 = (next(item for item in stars if item['hip'] == hip1)['ra'])
+    dec1 = (next(item for item in stars if item['hip'] == hip1)['de'])
+    ra2 = (next(item for item in stars if item['hip'] == hip2)['ra'])
+    dec2 = (next(item for item in stars if item['hip'] == hip2)['de'])
+
+    ra1 = m.radians(ra1)
+    dec1 = m.radians(dec1)
+
+    ra2 = m.radians(ra2)
+    dec2 = m.radians(dec2)
+
+    ang = m.degrees(m.acos((m.sin(dec1) * m.sin(dec2)) + (m.cos(dec1) * m.cos(dec2) * m.cos(ra1 - ra2))))
+
+    return ang
+# </cf>
 
 
+# <cf> Creates list of star dictionary
 for line in lines:
     # div by '|'
     chopdline = chop(line)
@@ -67,5 +86,17 @@ for line in lines:
     except ValueError:
         # data missing
         ngstars.append(newstar)
+# </cf>
 
-print(next(item for item in stars if item['hip'] == 63))
+# Polaris 11767
+# Sirius 32349
+
+for i in range(0, len(stars)):
+    hip1 = 11767
+    hip2 = (stars[i]['hip'])
+    print(calculate_angular_distance(hip1, hip2))
+
+for i in range(0, len(stars)):
+    hip1 = 32349
+    hip2 = (stars[i]['hip'])
+    print(calculate_angular_distance(hip1, hip2))
