@@ -1,4 +1,10 @@
+# Florian Fruehwirth
+# Starmap Alpha
+# Last change: 08.12.19
+
 import math as m
+import time
+import pickle
 
 hip = open('hip_test.dat')
 lines = hip.readlines()  # Puts every line of the catalog in an list item
@@ -8,7 +14,8 @@ latitude = 47  # Latitde of the observer
 ybp = 0  # Years before present
 deg_per_mas = 0.000000278  # conversion factor from miliarcseconds to degrees
 dec_limit = -(90 - latitude)  # Declination limit based on observer latitude
-mag_limit = 6.5
+mag_limit = 4.8
+# 6.5 is limit of visibility. 4.8 is 1025 stars
 
 
 # get all star
@@ -96,14 +103,22 @@ for line in lines:
 # Polaris 11767
 # Sirius 32349
 # Vega 91262
-x = 0
 
+todo = int(((len(stars) - 1) * len(stars)) / 2)
+calculations = 0
+
+startTime = time.time()
 for i in stars:
     for k in stars:
         if (f"dis_{i['hip']}" in k):
             pass
         elif (i != k):
             calculate_angular_distance(i['hip'], k['hip'])
+            calculations += 1
+            print(f"{calculations}/{todo}")
 
+print(f"Completed {calculations} calculations for {len(stars)} stars in {(time.time() - startTime)} seconds.")
 
-print(stars)
+save_file = open("save.txt", "w+b")
+pickle.dump(stars, save_file)
+save_file.close()
