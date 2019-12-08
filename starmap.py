@@ -119,6 +119,6 @@ for i in stars:
 
 print(f"Completed {calculations} calculations for {len(stars)} stars in {(time.time() - startTime)} seconds.")
 
-save_file = open("save.txt", "w+b")
+save_file = open("save.dat", "w+b")
 pickle.dump(stars, save_file)
 save_file.close()
