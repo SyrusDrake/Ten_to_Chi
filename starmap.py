@@ -6,12 +6,12 @@ import math as m
 import time
 import pickle
 
-hip = open('hip_test.dat')
+hip = open('hip_main.dat')
 lines = hip.readlines()  # Puts every line of the catalog in an list item
 stars = []  # Empty list of stars
 ngstars = []  # List of stars with missing valeus
 latitude = 47  # Latitde of the observer
-ybp = 0  # Years before present
+ybp = 30000  # Years before present
 deg_per_mas = 0.000000278  # conversion factor from miliarcseconds to degrees
 dec_limit = -(90 - latitude)  # Declination limit based on observer latitude
 mag_limit = 4.8
@@ -119,6 +119,6 @@ for i in stars:
 
 print(f"Completed {calculations} calculations for {len(stars)} stars in {(time.time() - startTime)} seconds.")
 
-save_file = open("save.dat", "w+b")
+save_file = open(f"starlist_{mag_limit}mag_{ybp}bp.dat", "w+b")
 pickle.dump(stars, save_file)
 save_file.close()

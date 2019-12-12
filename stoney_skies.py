@@ -8,6 +8,7 @@ import tkinter as tk
 from tkinter import filedialog
 from PIL import ImageTk, Image
 import SetMarkers as mk
+import pickle
 
 marker_ID = 1   # For assigning IDs to the markers. Necessary becausue canvas object count starts at
 marker_list = []    # The "collection" of all markers.
@@ -15,21 +16,26 @@ version = " alpha"
 
 # <cf> Star coordinates
 
+# Loads star list from Starmap save file
+load_file = open('save.dat', 'rb')
+star_list = pickle.load(load_file)
+load_file.close()
+
 # For testing purposes only. Star coordinates will be imported from external file in the future.
 
 stretch = 20.9
 
-star_list = {'star1': (43.54361, 52.82556),
-             'star2': (50.63028, 55.22028),
-             'star3': (51.04972, 58.82917),
-             'star4': (59.89667, 60.15667),
-             'star5': (55.4325, 64.61861)}
+star_list_test = {'star1': (43.54361, 52.82556),
+                  'star2': (50.63028, 55.22028),
+                  'star3': (51.04972, 58.82917),
+                  'star4': (59.89667, 60.15667),
+                  'star5': (55.4325, 64.61861)}
 
-z1, a1 = star_list['star1']
-z2, a2 = star_list['star2']
-z3, a3 = star_list['star3']
-z4, a4 = star_list['star4']
-z5, a5 = star_list['star5']
+z1, a1 = star_list_test['star1']
+z2, a2 = star_list_test['star2']
+z3, a3 = star_list_test['star3']
+z4, a4 = star_list_test['star4']
+z5, a5 = star_list_test['star5']
 
 v2 = (round(z2-z1, 2)*stretch, round(a2-a1, 2)*stretch)
 v3 = (round(z3-z1, 2)*stretch, round(a3-a1, 2)*stretch)
