@@ -57,7 +57,7 @@ def calculate_new_coordinates(ra, de, pm_ra, pm_de, ybp):
 
 # <cf> Function to calculate angular distance between stars
 def calculate_angular_distance(active_star, target_star):  # Takes HIP IDs as input
-    active_entry = next(item for item in stars if item['hip'] == active_star)
+    active_entry = next(item for item in stars if item['hip'] == active_star) # Finds item in hip list based on ID
     target_entry = next(item for item in stars if item['hip'] == target_star)
     ra1 = active_entry['ra']
     dec1 = active_entry['de']
@@ -71,8 +71,8 @@ def calculate_angular_distance(active_star, target_star):  # Takes HIP IDs as in
     dec2 = m.radians(dec2)
 
     ang = m.degrees(m.acos((m.sin(dec1) * m.sin(dec2)) + (m.cos(dec1) * m.cos(dec2) * m.cos(ra1 - ra2))))
-    active_entry[f'dis_{target_star}'] = ang
-    target_entry[f'dis_{active_star}'] = ang
+    active_entry[f'dis_{target_star}'] = ang  # Adds the angular distance to the target star to the item list of the active star
+    target_entry[f'dis_{active_star}'] = ang  # Adds the angular distance to the active star to the item list of the target star
 
 # </cf>
 
@@ -91,7 +91,7 @@ for line in lines:
         newstar['pm_de'] = float(chopdline[13]) * deg_per_mas
         newstar['cal_ra'], newstar['cal_de'] = calculate_new_coordinates(newstar['ra'], newstar['de'], newstar['pm_ra'], newstar['pm_de'], ybp)
 
-        if newstar['cal_de'] > dec_limit and newstar['mag'] <= mag_limit:
+        if newstar['cal_de'] > dec_limit and newstar['mag'] <= mag_limit:  # Checks if star is visible at position and due to brightness. Otherwise skips it.
             # Adds dictionary items
             stars.append(newstar)
 
@@ -104,18 +104,18 @@ for line in lines:
 # Sirius 32349
 # Vega 91262
 
-todo = int(((len(stars) - 1) * len(stars)) / 2)
+todo = int(((len(stars) - 1) * len(stars)) / 2)  # How many calculations are necessary. Might be removed later.
 calculations = 0
 
 startTime = time.time()
 for i in stars:
     for k in stars:
-        if (f"dis_{i['hip']}" in k):
+        if (f"dis_{i['hip']}" in k):  # Checks if the calculation has already been done in reverse
             pass
-        elif (i != k):
+        elif (i != k):  # Avoids calculating distances of 0
             calculate_angular_distance(i['hip'], k['hip'])
             calculations += 1
-            print(f"{calculations}/{todo}")
+            print(f"{calculations}/{todo}")  # Shows how many calculations have been done already vs how many are necessary
 
 print(f"Completed {calculations} calculations for {len(stars)} stars in {(time.time() - startTime)} seconds.")
 
