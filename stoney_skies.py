@@ -2,7 +2,7 @@
 # Stoney Skies Alpha
 # This version is non-functional and used for the design and development of
 # the GUI.
-# Last change: 30.01.2020
+# Last change: 03.02.2020
 
 import tkinter as tk
 from tkinter import filedialog
@@ -13,6 +13,7 @@ import math as m
 
 marker_ID = 1   # For assigning IDs to the markers. Necessary becausue canvas object count starts at
 marker_list = []    # The "collection" of all markers.
+distances = {}
 version = " alpha"
 
 # <cf> Star coordinates
@@ -76,22 +77,34 @@ def delete_marker(event):
 
 
 def test():
-    calculate_marker_distances()
-    print(marker_list)
+    distances = calculate_marker_distances()
+    print(distances)
+    normalized_distances = normalize()
+    print(normalized_distances)
     # Function for testing function. Gets called by button of same name.
     # pass
 
 
 def calculate_marker_distances():
-    for active in marker_list:
-        for target in marker_list:
-            if (f"dis_{active['ID']}" in target):  # Checks if the calculation has already been done in reverse
-                pass
-            elif (active != target):  # Avoids calculating distances of 0
+    master = marker_list[0]
+    x1 = master['x']
+    y1 = master['y']
+    for marker in marker_list[1:]:
+        x2 = marker['x']
+        y2 = marker['y']
+        dis = m.sqrt((x2-x1)**2+(y2-y1)**2)  # calculates the distances
+        distances[f"dis_{marker['ID']}"] = dis
+    return distances
 
-                dis = m.sqrt((target['x']-active['x'])**2+(target['y']-active['y'])**2)
-                active[f'dis_{target["ID"]}'] = dis  # Adds the angular distance to the target star to the item list of the active star
-                target[f'dis_{active["ID"]}'] = dis  # Adds the angular distance to the active star to the item list of the target star
+
+# Normalizes all distances so that one is 1.0 and all others are fractions of that
+def normalize():
+    normalized_distances = {}
+    ref_distance = list(distances.values())[0]  # Takes the first entry in the list of distances. Any other would work too.
+    for i in distances:  # Iterates through the entire list and divides all distances by the chosen reference distance.
+        normalized_distances[i] = (distances[i]/ref_distance)
+    return normalized_distances  # returns a new list of normalized distances
+
 
 # </cf> Functions
 
