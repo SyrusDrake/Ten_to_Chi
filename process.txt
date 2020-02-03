@@ -1,9 +1,0 @@
-* The user specifies the proposed size of the painting in degrees in x and y
-* The user creates a pattern of markers over a painting
-* Reference maps are created. A "master star" is picked and a list is created of all stars within the size limits specified
-by the user
-* A projected map of this sector is created. Master star is at 0,0. All other stars receive coordinates based on their
-VECTORS from the master stars. Those vectors are calculated from their actual celestial coordinates.
-* Rectangles are created around the stars with the stars as their center coordinates.
-* It is determined whether the markers and the rectangles overlap with find_overlapping (http://effbot.org/tkinterbook/canvas.htm#Tkinter.Canvas.find_overlapping-method)
-* If a certain percentage of the markers and rectangles overlap, the current local map is flagged as a "match"
