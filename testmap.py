@@ -2,11 +2,18 @@
 # Testmap: Functionally the same as starmap but creates simpler output files for testing purposes
 # Last change: 29.01.20
 
+# Polaris 11767
+# Sirius 32349
+# Vega 91262
+# γ Lyr 93194
+# Deneb 102098
+# γ Cyg 100453
+
 import math as m
 import time
 import pickle
 
-hip = open('hip_main.dat')
+hip = open('test_stars.txt')
 lines = hip.readlines()  # Puts every line of the catalog in an list item
 stars = []  # Empty list of stars
 ngstars = []  # List of stars with missing valeus
@@ -14,7 +21,7 @@ latitude = 47  # Latitde of the observer
 ybp = 30000  # Years before present
 deg_per_mas = 0.000000278  # conversion factor from miliarcseconds to degrees
 dec_limit = -(90 - latitude)  # Declination limit based on observer latitude
-mag_limit = 4.8
+mag_limit = 20
 # 6.5 is limit of visibility. 4.8 is 1025 stars
 
 
@@ -55,9 +62,9 @@ def calculate_new_coordinates(ra, de, pm_ra, pm_de, ybp):
 # </cf>
 
 
-# <cf> Function to calculate angular distance between stars
+# Function to calculate angular distance between stars
 def calculate_angular_distance(active_star, target_star):  # Takes HIP IDs as input
-    active_entry = next(item for item in stars if item['hip'] == active_star) # Finds item in hip list based on ID
+    active_entry = next(item for item in stars if item['hip'] == active_star)  # Finds item in hip list based on ID
     target_entry = next(item for item in stars if item['hip'] == target_star)
     ra1 = active_entry['ra']
     dec1 = active_entry['de']
@@ -74,7 +81,8 @@ def calculate_angular_distance(active_star, target_star):  # Takes HIP IDs as in
     active_entry[f'dis_{target_star}'] = ang  # Adds the angular distance to the target star to the item list of the active star
     target_entry[f'dis_{active_star}'] = ang  # Adds the angular distance to the active star to the item list of the target star
 
-# </cf>
+
+
 
 
 # <cf> Creates list of star dictionary
@@ -100,9 +108,7 @@ for line in lines:
         ngstars.append(newstar)
 # </cf>
 
-# Polaris 11767
-# Sirius 32349
-# Vega 91262
+
 
 todo = int(((len(stars) - 1) * len(stars)) / 2)  # How many calculations are necessary. Might be removed later.
 calculations = 0
@@ -119,6 +125,8 @@ for i in stars:
 
 print(f"Completed {calculations} calculations for {len(stars)} stars in {(time.time() - startTime)} seconds.")
 
-save_file = open("save.dat", "w+b")
-pickle.dump(stars, save_file)
-save_file.close()
+print(stars)
+
+# save_file = open("save.dat", "w+b")
+# pickle.dump(stars, save_file)
+# save_file.close()

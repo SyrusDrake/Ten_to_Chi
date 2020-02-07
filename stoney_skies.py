@@ -81,7 +81,7 @@ def test():
     print(distances)
     normalized_distances = normalize()
     print(normalized_distances)
-    # Function for testing function. Gets called by button of same name.
+    # Function for testing. Gets called by button of same name.
     # pass
 
 
