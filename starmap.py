@@ -1,15 +1,16 @@
 # Florian Fruehwirth
 # Starmap Alpha
-# Last change: 08.12.19
+# Last change: 13.02.2020
 
 import math as m
 import time
-import pickle
+import shelve
 
 hip = open('hip_main.dat')
 lines = hip.readlines()  # Puts every line of the catalog in an list item
 stars = []  # Empty list of stars
 ngstars = []  # List of stars with missing valeus
+distances = {}
 latitude = 47  # Latitde of the observer
 ybp = 30000  # Years before present
 deg_per_mas = 0.000000278  # conversion factor from miliarcseconds to degrees
@@ -56,9 +57,11 @@ def calculate_new_coordinates(ra, de, pm_ra, pm_de, ybp):
 
 
 # <cf> Function to calculate angular distance between stars
-def calculate_angular_distance(active_star, target_star):  # Takes HIP IDs as input
-    active_entry = next(item for item in stars if item['hip'] == active_star) # Finds item in hip list based on ID
-    target_entry = next(item for item in stars if item['hip'] == target_star)
+
+# Function to calculate angular distance between stars
+def calculate_angular_distance(active_entry, target_entry):  # Takes HIP IDs as input
+    active_hip = active_entry['hip']
+    target_hip = target_entry['hip']
     ra1 = active_entry['ra']
     dec1 = active_entry['de']
     ra2 = target_entry['ra']
@@ -71,8 +74,7 @@ def calculate_angular_distance(active_star, target_star):  # Takes HIP IDs as in
     dec2 = m.radians(dec2)
 
     ang = m.degrees(m.acos((m.sin(dec1) * m.sin(dec2)) + (m.cos(dec1) * m.cos(dec2) * m.cos(ra1 - ra2))))
-    active_entry[f'dis_{target_star}'] = ang  # Adds the angular distance to the target star to the item list of the active star
-    target_entry[f'dis_{active_star}'] = ang  # Adds the angular distance to the active star to the item list of the target star
+    return ang
 
 # </cf>
 
@@ -100,25 +102,31 @@ for line in lines:
         ngstars.append(newstar)
 # </cf>
 
-# Polaris 11767
-# Sirius 32349
-# Vega 91262
 
 todo = int(((len(stars) - 1) * len(stars)) / 2)  # How many calculations are necessary. Might be removed later.
 calculations = 0
 
+# Creates an empty dictionary of dictionaries since creating nested entries from scratch seems to be impossible.
+for i in stars:
+    distances[i['hip']] = {}
+
 startTime = time.time()
 for i in stars:
+    active_hip = i['hip']
     for k in stars:
-        if (f"dis_{i['hip']}" in k):  # Checks if the calculation has already been done in reverse
+        target_hip = k['hip']
+        if target_hip in distances and active_hip in distances[target_hip]:  # Checks if the calculation has already been done in reverse
             pass
         elif (i != k):  # Avoids calculating distances of 0
-            calculate_angular_distance(i['hip'], k['hip'])
+            ang = calculate_angular_distance(i, k)
+            distances[active_hip][target_hip] = distances[target_hip][active_hip] = ang
             calculations += 1
             print(f"{calculations}/{todo}")  # Shows how many calculations have been done already vs how many are necessary
 
 print(f"Completed {calculations} calculations for {len(stars)} stars in {(time.time() - startTime)} seconds.")
 
-save_file = open(f"starlist_{mag_limit}mag_{ybp}bp.dat", "w+b")
-pickle.dump(stars, save_file)
+print(distances)
+
+save_file = shelve.open("star_save", "n")
+save_file['distances'] = distances
 save_file.close()
