@@ -110,20 +110,24 @@ calculations = 0
 
 # Creates an empty dictionary of dictionaries since creating nested entries from scratch seems to be impossible.
 for i in stars:
-    distances[i['hip']] = {}
+    distances[f"{i['hip']}"] = {}
+
 
 startTime = time.time()
-for i in stars:
-    active_hip = i['hip']
-    for k in stars:
-        target_hip = k['hip']
+for a in stars:
+    active_hip = f"{a['hip']}"
+    for t in stars:
+        target_hip = f"{t['hip']}"
         if target_hip in distances and active_hip in distances[target_hip]:  # Checks if the calculation has already been done in reverse
             pass
-        elif (i != k):  # Avoids calculating distances of 0
-            ang = calculate_angular_distance(i, k)
+        elif (a != t):  # Avoids calculating distances of 0
+            ang = calculate_angular_distance(a, t)
             distances[active_hip][target_hip] = distances[target_hip][active_hip] = ang
             calculations += 1
             print(f"{calculations}/{todo}")  # Shows how many calculations have been done already vs how many are necessary
+
+for a in distances:
+    distances[a] = {k: v for k, v in sorted(distances[a].items(), key=lambda item: item[1])}
 
 print(f"Completed {calculations} calculations for {len(stars)} stars in {(time.time() - startTime)} seconds.")
 
