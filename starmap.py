@@ -125,8 +125,6 @@ for i in stars:
 
 print(f"Completed {calculations} calculations for {len(stars)} stars in {(time.time() - startTime)} seconds.")
 
-print(distances)
-
 save_file = shelve.open("star_save", "n")
 save_file['distances'] = distances
 save_file.close()

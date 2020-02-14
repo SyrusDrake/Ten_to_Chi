@@ -14,6 +14,7 @@ import time
 import shelve
 
 hip = open('test_stars.txt')
+# hip = open('hip_main.dat')
 lines = hip.readlines()  # Puts every line of the catalog in an list item
 stars = []  # Empty list of stars
 ngstars = []  # List of stars with missing valeus
@@ -22,7 +23,7 @@ latitude = 47  # Latitde of the observer
 ybp = 30000  # Years before present
 deg_per_mas = 0.000000278  # conversion factor from miliarcseconds to degrees
 dec_limit = -(90 - latitude)  # Declination limit based on observer latitude
-mag_limit = 20
+mag_limit = 4.8
 # 6.5 is limit of visibility. 4.8 is 1025 stars
 
 
@@ -65,8 +66,6 @@ def calculate_new_coordinates(ra, de, pm_ra, pm_de, ybp):
 
 # Function to calculate angular distance between stars
 def calculate_angular_distance(active_entry, target_entry):  # Takes HIP IDs as input
-    active_hip = active_entry['hip']
-    target_hip = target_entry['hip']
     ra1 = active_entry['ra']
     dec1 = active_entry['de']
     ra2 = target_entry['ra']
@@ -108,6 +107,8 @@ for line in lines:
 todo = int(((len(stars) - 1) * len(stars)) / 2)  # How many calculations are necessary. Might be removed later.
 calculations = 0
 
+print(stars)
+
 # Creates an empty dictionary of dictionaries since creating nested entries from scratch seems to be impossible.
 for i in stars:
     distances[f"{i['hip']}"] = {}
@@ -130,8 +131,6 @@ for a in distances:
     distances[a] = {k: v for k, v in sorted(distances[a].items(), key=lambda item: item[1])}
 
 print(f"Completed {calculations} calculations for {len(stars)} stars in {(time.time() - startTime)} seconds.")
-
-print(distances)
 
 save_file = shelve.open("star_save_test", "n")
 save_file['distances'] = distances
