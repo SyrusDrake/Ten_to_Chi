@@ -10,14 +10,16 @@ import shelve
 # random
 # marker_list = [{'ID': 1, 'x': 180, 'y': 538}, {'ID': 2, 'x': 223, 'y': 542}, {'ID': 3, 'x': 160, 'y': 48}, {'ID': 4, 'x': 182, 'y': 50}, {'ID': 5, 'x': 189, 'y': 223}]
 # check
-marker_list = [{'ID': 1, 'x': 239, 'y': 315}, {'ID': 2, 'x': 478, 'y': 376}, {'ID': 3, 'x': 553, 'y': 252}, {'ID': 4, 'x': 752, 'y': 291}, {'ID': 5, 'x': 799, 'y': 134}]
+marker_list = [{'ID': 1, 'x': 261, 'y': 207}, {'ID': 2, 'x': 329, 'y': 340}, {'ID': 3, 'x': 441, 'y': 343}, {'ID': 4, 'x': 497, 'y': 476}, {'ID': 5, 'x': 626, 'y': 397}]
 
 star_distances = shelve.open('star_save_test')['distances']
 normalized_star_distances = {}
+dis_dif = {}
+dis_dif_comb = {}
+marker_num = len(marker_list)
+
 
 # Calculates distances from a master marker to all other points
-
-
 def calculate_marker_distances(*markers):
     distances = {}
     master = markers[0]
@@ -41,13 +43,34 @@ def normalize(**distances):
     return normalized_distances  # returns a new list of normalized distances
 
 
+# Normalizes all star distances and puts them in a new dictionary
 for i in star_distances:
     normalized_star_distances[i] = normalize(**star_distances[i])
+
 
 marker_distances = calculate_marker_distances(*marker_list)
 normalized_marker_distances = normalize(**marker_distances)
 
-print(star_distances)
-print(normalized_star_distances)
-print(marker_distances)
-print(normalized_marker_distances)
+# Compares normalized marker and star distances
+for d in normalized_star_distances:
+    dis_dif[d] = {}
+    for (s, n) in zip(normalized_star_distances[d], normalized_marker_distances):
+        dis_dif[d][s] = normalized_star_distances[d][s] - normalized_marker_distances[n]
+
+# Makes a new list with the sums of the differences between marker and star distances. Quick way to see which master star might be the best match.
+for d in dis_dif:
+    sum = 0
+    for i in dis_dif[d]:
+        sum = sum + abs(dis_dif[d][i])
+        dis_dif_comb[d] = sum
+
+# Sorts dis_dif_comb by values to see which master star has the least deviation from the marker pattern
+dis_dif_comb = {k: v for k, v in sorted(dis_dif_comb.items(), key=lambda item: abs(item[1]))}
+
+# Prints the HIP ID of the star with the least deviation.
+print(list(dis_dif_comb.keys())[0])
+
+# Analytics code to compare expected and actual results
+# x = list(dis_dif_comb.keys())[0]
+# print(f"{x} ({dis_dif_comb[x]}) -> {dis_dif[x]}")
+# print(dis_dif['8886'])
