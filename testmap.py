@@ -1,6 +1,8 @@
 # Florian Fruehwirth
 # Testmap: Functionally the same as starmap but creates simpler output files for testing purposes
 # Last change: 13.02.20
+# Longitude = right ascension
+# Latitude = declination
 
 # Polaris 11767
 # Sirius 32349
@@ -19,8 +21,9 @@ lines = hip.readlines()  # Puts every line of the catalog in an list item
 stars = []  # Empty list of stars
 ngstars = []  # List of stars with missing valeus
 distances = {}
+angles = {}
 latitude = 47  # Latitde of the observer
-ybp = 30000  # Years before present
+ybp = 0  # Years before present
 deg_per_mas = 0.000000278  # conversion factor from miliarcseconds to degrees
 dec_limit = -(90 - latitude)  # Declination limit based on observer latitude
 mag_limit = 4.8
@@ -66,6 +69,7 @@ def calculate_new_coordinates(ra, de, pm_ra, pm_de, ybp):
 
 # Function to calculate angular distance between stars
 def calculate_angular_distance(active_entry, target_entry):  # Takes HIP IDs as input
+
     ra1 = active_entry['ra']
     dec1 = active_entry['de']
     ra2 = target_entry['ra']
@@ -79,6 +83,26 @@ def calculate_angular_distance(active_entry, target_entry):  # Takes HIP IDs as 
 
     ang = m.degrees(m.acos((m.sin(dec1) * m.sin(dec2)) + (m.cos(dec1) * m.cos(dec2) * m.cos(ra1 - ra2))))
     return ang
+
+
+def calculate_star_angles(master, slave, target):
+    angles = {}
+    dec1 = master['dec']
+    ra1 = master['ra']
+    dec2 = slave['dec']
+    ra2 = slave['ra']
+    h1 = m.atan2(m.sin(ra2-ra1)*m.cos(dec2), m.cos(dec1)*m.sin(dec2)-m.sin(dec1)*m.cos(dec2)*m.cos(ra2-ra1))
+    print(m.degrees(h1))
+
+    for i in range(2, len(coordinates)):
+        de = m.radians(coordinates[list(coordinates.keys())[i]]['dec'])
+        ra = m.radians(coordinates[list(coordinates.keys())[i]]['ra'])
+        h = m.atan2(m.sin(ra-ra1)*m.cos(dec), m.cos(dec1)*m.sin(dec)-m.sin(dec1)*m.cos(dec)*m.cos(ra-ra1))
+        ang = m.degrees(h-h1)
+        if ang < 0:
+            ang += 360
+        angles[list(coordinates.keys())[i]] = ang
+    return angles
 
 
 # <cf> Creates list of star dictionary
@@ -112,8 +136,10 @@ print(stars)
 # Creates an empty dictionary of dictionaries since creating nested entries from scratch seems to be impossible.
 for i in stars:
     distances[f"{i['hip']}"] = {}
+    angles[f"{i['hip']}"] = {}
 
 
+# <cf> Creates distances-list
 startTime = time.time()
 for a in stars:
     active_hip = f"{a['hip']}"
@@ -129,9 +155,35 @@ for a in stars:
 
 for a in distances:
     distances[a] = {k: v for k, v in sorted(distances[a].items(), key=lambda item: item[1])}
+# </cf> Creates distances-list
+
+
+for h in stars:
+    master_hip = f"{h['hip']}"
+    slave_hip = list(distances[master_hip].keys())[0]
+    slave = next(item for item in stars if item['hip'] == int(slave_hip))
+    ra1 = h['cal_ra']
+    dec1 = h['cal_de']
+    ra2 = slave['cal_ra']
+    dec2 = slave['cal_de']
+    h1 = m.atan2(m.sin(ra2-ra1)*m.cos(dec2), m.cos(dec1)*m.sin(dec2)-m.sin(dec1)*m.cos(dec2)*m.cos(ra2-ra1))
+    for t in stars:
+        if t == h or t == slave:
+            pass
+        else:
+            target_hip = f"{t['hip']}"
+            ra3 = t['ra']
+            dec3 = t['de']
+            h = m.atan2(m.sin(ra3-ra1)*m.cos(dec3), m.cos(dec1)*m.sin(dec3)-m.sin(dec1)*m.cos(dec3)*m.cos(ra3-ra1))
+            ang = m.degrees(h-h1)
+            if ang < 0:
+                ang += 360
+            print(f"Master: {master_hip}, Slave: {slave_hip}, Target: {target_hip}, Angle: {ang}")
+            angles[master_hip][target_hip] = ang
 
 print(f"Completed {calculations} calculations for {len(stars)} stars in {(time.time() - startTime)} seconds.")
-
-save_file = shelve.open("star_save_test", "n")
-save_file['distances'] = distances
-save_file.close()
+print(distances)
+print(angles)
+# save_file = shelve.open("star_save_test", "n")
+# save_file['distances'] = distances
+# save_file.close()
