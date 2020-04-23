@@ -22,6 +22,7 @@ stars = []  # Empty list of stars
 ngstars = []  # List of stars with missing valeus
 distances = {}
 angles = {}
+temp_dict = {}
 latitude = 47  # Latitde of the observer
 ybp = 0  # Years before present
 deg_per_mas = 0.000000278  # conversion factor from miliarcseconds to degrees
@@ -85,26 +86,6 @@ def calculate_angular_distance(active_entry, target_entry):  # Takes HIP IDs as 
     return ang
 
 
-def calculate_star_angles(master, slave, target):
-    angles = {}
-    dec1 = master['dec']
-    ra1 = master['ra']
-    dec2 = slave['dec']
-    ra2 = slave['ra']
-    h1 = m.atan2(m.sin(ra2-ra1)*m.cos(dec2), m.cos(dec1)*m.sin(dec2)-m.sin(dec1)*m.cos(dec2)*m.cos(ra2-ra1))
-    print(m.degrees(h1))
-
-    for i in range(2, len(coordinates)):
-        de = m.radians(coordinates[list(coordinates.keys())[i]]['dec'])
-        ra = m.radians(coordinates[list(coordinates.keys())[i]]['ra'])
-        h = m.atan2(m.sin(ra-ra1)*m.cos(dec), m.cos(dec1)*m.sin(dec)-m.sin(dec1)*m.cos(dec)*m.cos(ra-ra1))
-        ang = m.degrees(h-h1)
-        if ang < 0:
-            ang += 360
-        angles[list(coordinates.keys())[i]] = ang
-    return angles
-
-
 # <cf> Creates list of star dictionary
 for line in lines:
     # div by '|'
@@ -131,7 +112,7 @@ for line in lines:
 todo = int(((len(stars) - 1) * len(stars)) / 2)  # How many calculations are necessary. Might be removed later.
 calculations = 0
 
-print(stars)
+# print(stars)
 
 # Creates an empty dictionary of dictionaries since creating nested entries from scratch seems to be impossible.
 for i in stars:
@@ -151,14 +132,15 @@ for a in stars:
             ang = calculate_angular_distance(a, t)
             distances[active_hip][target_hip] = distances[target_hip][active_hip] = ang
             calculations += 1
-            print(f"{calculations}/{todo}")  # Shows how many calculations have been done already vs how many are necessary
+            # print(f"{calculations}/{todo}")  # Shows how many calculations have been done already vs how many are necessary
 
 for a in distances:
     distances[a] = {k: v for k, v in sorted(distances[a].items(), key=lambda item: item[1])}
-# </cf> Creates distances-list
+# </cf>
 
-
+# <cf> Calculates angles between stars
 for h in stars:
+    # Chooses a master and a slave (star and its closest neighbour), between which a line is drawn
     master_hip = f"{h['hip']}"
     slave_hip = list(distances[master_hip].keys())[0]
     slave = next(item for item in stars if item['hip'] == int(slave_hip))
@@ -167,10 +149,12 @@ for h in stars:
     ra2 = slave['cal_ra']
     dec2 = slave['cal_de']
     h1 = m.atan2(m.sin(ra2-ra1)*m.cos(dec2), m.cos(dec1)*m.sin(dec2)-m.sin(dec1)*m.cos(dec2)*m.cos(ra2-ra1))
+    angles[master_hip][slave_hip] = 0  # An entry with no value is necesssary for proper sorting later. It is deleted afterwards.
     for t in stars:
         if t == h or t == slave:
             pass
         else:
+            # Calculates the angle between the line master-slave and master-target
             target_hip = f"{t['hip']}"
             ra3 = t['ra']
             dec3 = t['de']
@@ -178,12 +162,25 @@ for h in stars:
             ang = m.degrees(h-h1)
             if ang < 0:
                 ang += 360
-            print(f"Master: {master_hip}, Slave: {slave_hip}, Target: {target_hip}, Angle: {ang}")
+            # print(f"Master: {master_hip}, Slave: {slave_hip}, Target: {target_hip}, Angle: {ang}")
             angles[master_hip][target_hip] = ang
 
+# Sorts the angle entries not based on their value but based on the distances.
+# I.e. the angle between Star 1 and Star 2 is smaller but gets sorted higher than S1-S3 because the distances S1-S3 is shorter.
+for i in distances:
+    temp_dict[i] = {}
+    for k in distances[i]:
+        temp_dict[i][k] = angles[i][k]
+    # x = list(temp_dict[i].keys())[0]
+    del temp_dict[i][list(temp_dict[i].keys())[0]]
+angles = temp_dict
+
+# </cf> Calculates angles between stars
+
+
 print(f"Completed {calculations} calculations for {len(stars)} stars in {(time.time() - startTime)} seconds.")
-print(distances)
-print(angles)
-# save_file = shelve.open("star_save_test", "n")
-# save_file['distances'] = distances
-# save_file.close()
+# print(list(distances['107348'].items())[0:10])
+save_file = shelve.open("star_save_test", "n")
+save_file['angles'] = angles
+save_file['distances'] = distances
+save_file.close()
