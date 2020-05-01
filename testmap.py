@@ -1,6 +1,6 @@
 # Florian Fruehwirth
 # Testmap: Functionally the same as starmap but creates simpler output files for testing purposes
-# Last change: 13.02.20
+# Last change: 01.05.2020
 # Longitude = right ascension
 # Latitude = declination
 
@@ -15,8 +15,8 @@ import math as m
 import time
 import shelve
 
-hip = open('test_stars.txt')
-# hip = open('hip_main.dat')
+# hip = open('test_stars.txt')
+hip = open('hip_main.dat')
 lines = hip.readlines()  # Puts every line of the catalog in an list item
 stars = []  # Empty list of stars
 ngstars = []  # List of stars with missing valeus
@@ -27,7 +27,7 @@ latitude = 47  # Latitde of the observer
 ybp = 0  # Years before present
 deg_per_mas = 0.000000278  # conversion factor from miliarcseconds to degrees
 dec_limit = -(90 - latitude)  # Declination limit based on observer latitude
-mag_limit = 4.8
+mag_limit = 3.4
 # 6.5 is limit of visibility. 4.8 is 1025 stars
 
 
@@ -144,10 +144,10 @@ for h in stars:
     master_hip = f"{h['hip']}"
     slave_hip = list(distances[master_hip].keys())[0]
     slave = next(item for item in stars if item['hip'] == int(slave_hip))
-    ra1 = h['cal_ra']
-    dec1 = h['cal_de']
-    ra2 = slave['cal_ra']
-    dec2 = slave['cal_de']
+    ra1 = m.radians(h['cal_ra'])
+    dec1 = m.radians(h['cal_de'])
+    ra2 = m.radians(slave['cal_ra'])
+    dec2 = m.radians(slave['cal_de'])
     h1 = m.atan2(m.sin(ra2-ra1)*m.cos(dec2), m.cos(dec1)*m.sin(dec2)-m.sin(dec1)*m.cos(dec2)*m.cos(ra2-ra1))
     angles[master_hip][slave_hip] = 0  # An entry with no value is necesssary for proper sorting later. It is deleted afterwards.
     for t in stars:
@@ -156,10 +156,10 @@ for h in stars:
         else:
             # Calculates the angle between the line master-slave and master-target
             target_hip = f"{t['hip']}"
-            ra3 = t['ra']
-            dec3 = t['de']
+            ra3 = m.radians(t['cal_ra'])
+            dec3 = m.radians(t['cal_de'])
             h = m.atan2(m.sin(ra3-ra1)*m.cos(dec3), m.cos(dec1)*m.sin(dec3)-m.sin(dec1)*m.cos(dec3)*m.cos(ra3-ra1))
-            ang = m.degrees(h-h1)
+            ang = m.degrees(h1-h)
             if ang < 0:
                 ang += 360
             # print(f"Master: {master_hip}, Slave: {slave_hip}, Target: {target_hip}, Angle: {ang}")
@@ -176,7 +176,6 @@ for i in distances:
 angles = temp_dict
 
 # </cf> Calculates angles between stars
-
 
 print(f"Completed {calculations} calculations for {len(stars)} stars in {(time.time() - startTime)} seconds.")
 # print(list(distances['107348'].items())[0:10])

@@ -1,6 +1,6 @@
 # Florian Fruehwirth
 # Does all the maths stuff and comparisons
-# Last change: 07.02.2020
+# Last change: 01.05.2020
 
 import math as m
 import shelve
@@ -11,6 +11,7 @@ import shelve
 # marker_list = [{'ID': 1, 'x': 180, 'y': 538}, {'ID': 2, 'x': 223, 'y': 542}, {'ID': 3, 'x': 160, 'y': 48}, {'ID': 4, 'x': 182, 'y': 50}, {'ID': 5, 'x': 189, 'y': 223}]
 # check
 marker_list = {'1': {'x': 261, 'y': 207}, '2': {'x': 329, 'y': 340}, '3': {'x': 441, 'y': 343}, '4': {'x': 497, 'y': 476}, '5': {'x': 626, 'y': 397}}
+# marker_list = {'1': {'x': 429, 'y': 322}, '2': {'x': 425, 'y': 94}, '3': {'x': 733, 'y': 323}, '4': {'x': 424, 'y': 584}}
 
 star_distances = shelve.open('star_save_test')['distances']
 star_angles = shelve.open('star_save_test')['angles']
@@ -20,6 +21,7 @@ dis_dif = {}
 ang_dif = {}
 dis_dif_comb = {}
 ang_dif_comb = {}
+total_comb = {}
 marker_num = len(marker_list)
 
 # Calculates distances from a master marker to all other points
@@ -52,7 +54,7 @@ def calculate_marker_angles(**markers):
     for i in range(2, len(markers)):
         x1 = markers[list(markers.keys())[i]]['x']
         x2 = markers[list(markers.keys())[i]]['y']
-        ang = m.degrees(d - m.atan2(x2-m2, x1-m1))
+        ang = m.degrees(m.atan2(x2-m2, x1-m1) - d)
         # Adds 360 to negative values to only return positive angles
         if ang < 0:
             ang += 360
@@ -112,19 +114,21 @@ for d in ang_dif:
 # </cf>
 
 # Sorts dis_dif_comb by values to see which master star has the least deviation from the marker pattern
+
 dis_dif_comb = {k: v for k, v in sorted(dis_dif_comb.items(), key=lambda item: abs(item[1]))}
 ang_dif_comb = {k: v for k, v in sorted(ang_dif_comb.items(), key=lambda item: abs(item[1]))}
+
+for i in dis_dif_comb:
+    x = dis_dif_comb[i] + ang_dif_comb[i]
+    total_comb[i] = x
 
 # Prints the HIP ID of the star with the least deviation.
 print(list(dis_dif_comb.keys())[0])
 print(list(ang_dif_comb.keys())[0])
+print(list(total_comb.keys())[0])
 
 
 # Analytics code to compare expected and actual results
-# x = list(dis_dif_comb.keys())[0]
-# print(f"{x} ({dis_dif_comb[x]}) -> {dis_dif[x]}")
-# print(dis_dif['8886'])
-# print('------')
-# y = list(ang_dif_comb.keys())[0]
-# print(f"{y} ({ang_dif_comb[y]}) -> {ang_dif[y]}")
-# print(ang_dif['8886'])
+# x = list(total_comb.keys())[0]
+# print(f"{x} ({total_comb[x]}) -> {total_comb[x]}")
+# print(total_comb['8886'])
