@@ -4,14 +4,11 @@
 
 import math as m
 import shelve
+from tkinter import filedialog
 
-# wildcard
-# marker_list = [{'ID': 1, 'x': 162, 'y': 435}, {'ID': 2, 'x': 192, 'y': 465}, {'ID': 3, 'x': 211, 'y': 434}, {'ID': 4, 'x': 248, 'y': 450}, {'ID': 5, 'x': 241, 'y': 396}]
-# random
-# marker_list = [{'ID': 1, 'x': 180, 'y': 538}, {'ID': 2, 'x': 223, 'y': 542}, {'ID': 3, 'x': 160, 'y': 48}, {'ID': 4, 'x': 182, 'y': 50}, {'ID': 5, 'x': 189, 'y': 223}]
-# check
 marker_list = {'1': {'x': 261, 'y': 207}, '2': {'x': 329, 'y': 340}, '3': {'x': 441, 'y': 343}, '4': {'x': 497, 'y': 476}, '5': {'x': 626, 'y': 397}}
-# marker_list = {'1': {'x': 429, 'y': 322}, '2': {'x': 425, 'y': 94}, '3': {'x': 733, 'y': 323}, '4': {'x': 424, 'y': 584}}
+# filename = filedialog.askopenfilename(filetypes=[('Patterns', '*.ptn')])
+# marker_list = shelve.open(filename)['marker_list']
 
 star_distances = shelve.open('star_save_test')['distances']
 star_angles = shelve.open('star_save_test')['angles']
