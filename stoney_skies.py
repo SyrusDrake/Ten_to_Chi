@@ -34,7 +34,8 @@ def place_marker(event):
     # newMarker['x'] = event.x
     # newMarker['y'] = event.y
     # marker_list.append(newMarker)
-    marker_list[marker_ID] = {'x': event.x, 'y': event.y}
+    handle = canvas.find_withtag('marker')[-1]
+    marker_list[handle] = {'ID': marker_ID, 'x': event.x, 'y': event.y}
     marker_ID += 1
     print(marker_list)
 
@@ -42,7 +43,7 @@ def place_marker(event):
 def clear_canvas():
     global marker_ID
     global marker_list
-    # Function to clear the entire canvas of all markers but not the grid
+    # Function to clear the entire canvas of all markers
     canvas.delete('marker')
     marker_ID = 1
     marker_list = {}
@@ -60,19 +61,25 @@ def delete_marker(event):
 def import_image():
     # function to import the reference image
     global img
-    filename = filedialog.askopenfilename()     # The explorer window to let the user pick the file
+    filename = filedialog.askopenfilename(filetypes=[('Image files', '*.jpg *.png *.jpeg')])     # The explorer window to let the user pick the file
     img = ImageTk.PhotoImage(Image.open(filename))
     canvas.create_image(0, 0, anchor='nw', image=img)
 
 
-def save_file():
+def save_pattern():
+    print(marker_list)
     save_list = {}
     filename = filedialog.asksaveasfilename(filetypes=[('Pattern', '*.ptn')])
     for i in marker_list:
         save_list[str(i)] = marker_list[i]
+    print(save_list)
     save_file = shelve.open(filename, "n")
     save_file['marker_list'] = save_list
     save_file.close()
+
+
+def test():
+    print(canvas.find_withtag('marker')[-1])
 
 
 # </cf> Functions
@@ -82,16 +89,14 @@ def save_file():
 
 root_width = 1000   # width of the main window
 root_height = 700   # height of the main window
-control_width = root_width*0.18     # Width of the control panel on the left
-control_height = root_height*0.9
-# canvas_width = root_width*0.75  # Width of the canvas
-# canvas_height = root_height*0.9
 
 root = tk.Tk()
 root.title(f"Stoney Skies v.{version}")
+root.geometry(f'{root_width}x{root_height}+100+100')
+root.option_add('*tearOff', False)
 
-control = tk.Frame(width=500)
-control.pack(side='top')
+# control = tk.Frame(height=150)
+# control.pack(fill='x')
 canvas = tk.Canvas(cursor='crosshair', bd=5, relief='groove')
 # canvas.bind("<Configure>", draw_grid)
 canvas.bind('<Button-1>', place_marker)
@@ -100,21 +105,32 @@ canvas.pack(fill='both', expand=True)
 # img = ImageTk.PhotoImage(Image.open('/mnt/DATA/OneDrive/Personal Files/Programming/Python/Stoney_Skies/image.jpg'))
 # canvas.create_image(0, 0, anchor='nw', image=img)
 
+menubar = tk.Menu(root)
 
-b_clear = tk.Button(control, text="Clear canvas", font=30, command=clear_canvas)
-b_clear.pack(padx=5, fill='x', side='left')
+m_canvas = tk.Menu(menubar)
+menubar.add_cascade(label='File', menu=m_canvas)
+m_canvas.add_command(label='Import Image', command=import_image)
+m_canvas.add_command(label='Save Pattern', command=save_pattern)
+m_canvas.add_command(label='Clear Canvas', command=clear_canvas)
 
-# b_test = tk.Button(control, text="Import", font=30, command=import_image)
-# b_test.pack(pady=5, fill='x')
+menubar.add_command(label="Test", command=test)
 
-b_test = tk.Button(control, text="Test", font=30, command=save_file)
-b_test.pack(padx=5, fill='x', side='left')
+menubar.add_command(label="Quit!", command=root.quit)
 
-b_quit = tk.Button(control, text="Quit", font=30, command=root.quit)
-b_quit.pack(padx=5, fill='x', side='left')
+# b_clear = tk.Button(control, text="Clear canvas", font=30, command=clear_canvas)
+# b_clear.pack(padx=5, fill='x', side='left')
+#
+# # b_test = tk.Button(control, text="Import", font=30, command=import_image)
+# # b_test.pack(pady=5, fill='x')
+#
+# b_test = tk.Button(control, text="Test", font=30, command=save_pattern)
+# b_test.pack(padx=5, fill='x', side='left')
+#
+# b_quit = tk.Button(control, text="Quit", font=30, command=root.quit)
+# b_quit.pack(padx=5, fill='x', side='left')
 
 
 # </cf> drawing the interface
 
-root.geometry(f'{root_width}x{root_height}+100+100')
+root.config(menu=menubar)
 root.mainloop()

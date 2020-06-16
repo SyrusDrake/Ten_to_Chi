@@ -1,17 +1,21 @@
 # Florian Fruehwirth
 # Does all the maths stuff and comparisons
-# Last change: 01.05.2020
+# Last change: 16.06.2020
 
 import math as m
 import shelve
 from tkinter import filedialog
+from pathlib import Path
 
 marker_list = {'1': {'x': 261, 'y': 207}, '2': {'x': 329, 'y': 340}, '3': {'x': 441, 'y': 343}, '4': {'x': 497, 'y': 476}, '5': {'x': 626, 'y': 397}}
 # filename = filedialog.askopenfilename(filetypes=[('Patterns', '*.ptn')])
 # marker_list = shelve.open(filename)['marker_list']
+# filename.close()
+# filename = filedialog.askopenfilename(filetypes=[('Maps', '*.smp')])
+filename = Path.cwd() / "Map_47N" / "Map_0BP.smp"
+star_distances = shelve.open(str(filename))['distances']
+star_angles = shelve.open(str(filename))['angles']
 
-star_distances = shelve.open('star_save_test')['distances']
-star_angles = shelve.open('star_save_test')['angles']
 normalized_star_distances = {}
 normalized_star_angles = {}
 dis_dif = {}
@@ -20,6 +24,7 @@ dis_dif_comb = {}
 ang_dif_comb = {}
 total_comb = {}
 marker_num = len(marker_list)
+
 
 # Calculates distances from a master marker to all other points
 def calculate_marker_distances(**markers):
@@ -37,6 +42,7 @@ def calculate_marker_distances(**markers):
     distances = {k: v for k, v in sorted(distances.items(), key=lambda item: item[1])}  # sorts the dictionary entries by value
     return distances
 
+
 # Calculates angles between Marker1-Marker2 and Marker1-MarkerX
 def calculate_marker_angles(**markers):
     angles = {}
@@ -45,7 +51,7 @@ def calculate_marker_angles(**markers):
     m2 = markers[list(markers.keys())[0]]['y']
     s1 = markers[list(markers.keys())[1]]['x']
     s2 = markers[list(markers.keys())[1]]['y']
-    d = m.atan2(s2-m2, s1-m1) # Saves the first part of the equation as a constant so it doesn't have to be repeated
+    d = m.atan2(s2-m2, s1-m1)  # Saves the first part of the equation as a constant so it doesn't have to be repeated
 
     # Repeats the calculations for all points in the list except the first two
     for i in range(2, len(markers)):
@@ -108,7 +114,7 @@ for d in ang_dif:
     for i in ang_dif[d]:
         sum = sum + abs(ang_dif[d][i])
         ang_dif_comb[d] = sum
-# </cf>
+# </cf> Makes a new list with the sums of the differences between marker and star distances/angles. Quick way to see which master star might be the best match.
 
 # Sorts dis_dif_comb by values to see which master star has the least deviation from the marker pattern
 

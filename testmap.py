@@ -1,6 +1,6 @@
 # Florian Fruehwirth
 # Testmap: Functionally the same as starmap but creates simpler output files for testing purposes
-# Last change: 01.05.2020
+# Last change: 16.06.2020
 # Longitude = right ascension
 # Latitude = declination
 
@@ -14,6 +14,8 @@
 import math as m
 import time
 import shelve
+from pathlib import Path
+import os
 
 # hip = open('test_stars.txt')
 hip = open('hip_main.dat')
@@ -28,7 +30,7 @@ ybp = 0  # Years before present
 deg_per_mas = 0.000000278  # conversion factor from miliarcseconds to degrees
 dec_limit = -(90 - latitude)  # Declination limit based on observer latitude
 mag_limit = 3.4
-# 6.5 is limit of visibility. 4.8 is 1025 stars
+# 6.5 is limit of visibility. 4.8 is 1025 stars. 3.4 seems to return the best results for now.
 
 
 # get all star
@@ -109,7 +111,7 @@ for line in lines:
         ngstars.append(newstar)
 # </cf>
 
-todo = int(((len(stars) - 1) * len(stars)) / 2)  # How many calculations are necessary. Might be removed later.
+todo = int(((len(stars) - 1) * len(stars)))  # How many calculations are necessary. Might be removed later.
 calculations = 0
 
 # print(stars)
@@ -165,6 +167,7 @@ for h in stars:
             # print(f"Master: {master_hip}, Slave: {slave_hip}, Target: {target_hip}, Angle: {ang}")
             angles[master_hip][target_hip] = ang
 
+
 # Sorts the angle entries not based on their value but based on the distances.
 # I.e. the angle between Star 1 and Star 2 is smaller but gets sorted higher than S1-S3 because the distances S1-S3 is shorter.
 for i in distances:
@@ -178,8 +181,21 @@ angles = temp_dict
 # </cf> Calculates angles between stars
 
 print(f"Completed {calculations} calculations for {len(stars)} stars in {(time.time() - startTime)} seconds.")
-# print(list(distances['107348'].items())[0:10])
-save_file = shelve.open("star_save_test", "n")
-save_file['angles'] = angles
-save_file['distances'] = distances
-save_file.close()
+
+# <cf> Saving data
+
+folder_path = Path.cwd() / f"Map_{latitude}N"
+save_file = Path.cwd() / f"Map_{latitude}N" / f"Map_{ybp}BP.smp"
+
+if not os.path.exists(folder_path):
+    os.mkdir(folder_path)
+else:
+    pass
+
+save_data = shelve.open(str(save_file), "n")
+save_data['mag_limit'] = mag_limit
+save_data['angles'] = angles
+save_data['distances'] = distances
+save_data.close()
+
+# </cf> Saving data
