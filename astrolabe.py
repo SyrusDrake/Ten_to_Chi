@@ -15,12 +15,9 @@ star_angles = shelve.open(str(filename))['angles']
 normd_star = shelve.open(str(filename))['normalized_distances']
 norma_star = shelve.open(str(filename))['normalized_angles']
 
-filename = Path.cwd() / "stier.ptn"
+filename = Path.cwd() / "Patterns" / "gemini.ptn"
 # filename = Path.cwd() / "cassiopeia.ptn"
 markers = shelve.open(str(filename))['marker_list']
-
-print(star_distances['26451']['15900'])
-
 
 def calculate_marker_distances(**markers):
     distances = {}
@@ -75,16 +72,18 @@ del marker_bearings[list(normd_markers)[0]]  # removes "normalizer" from bearing
 # Calculates angles between markers based on their bearings
 for i in marker_bearings:
     b2 = marker_bearings[i]
-    if b1 >= b2:
-        ang = b2 - b1
-    else:
-        ang = b1 - b2
+    ang = b1 - b2
+    if ang > 180:
+        ang = ang-360
+    elif ang < -180:
+        ang += 360
     temp_dict[i] = ang
 
 # Sorts the normalized angles not on their values but on the values of the distances
 for k in list(normd_markers.keys()):
     norma_markers[k] = temp_dict[k]
 
+print(norma_markers)
 
 for a in normd_star:
     # matches[f'{a}'] = {}
@@ -101,17 +100,17 @@ for a in normd_star:
                 compa_markers = norma_markers[i]
                 diff_d = compd_star-compd_markers
                 diff_a = compa_star-compa_markers
-                # if a == '26451' and n == '25428' and (t == '21421' or t == '20889' or t == '20894' or t == '20455' or t == '20205' or t == '18724' or t == '15900'):
-                #     print(f'Master: {a}, Normalizer: {n}, Target: {t}, Difference distance: {diff_d}, Difference angle: {diff_a}, Marker: {i}')
-                if abs(diff_d) < 0.1 and abs(diff_a) < 2:
+                if a == '33018' and n == '34693' and (t == '36850' or t == '32246' or t == '36046' or t == '36962' or t == '37826' or t == '30343' or t == '35550' or t == '34088' or t == '29655' or t == '30883' or t == '37740' or t == '28734'):
+                    print(f'Master: {a}, Normalizer: {n}, Target: {t}, Difference distance: {diff_d}, Difference angle: {diff_a}, Marker: {i}')
+                if abs(diff_d) < 0.35 and abs(diff_a) < 3:
                     if matches[mid]['Matches'] == 0:
-                        # debug.write(f'Master: {a}, Normalizer: {n}, Target: {t}, Difference distance: {diff_d}, Difference angle: {diff_a}, Marker: {i}\r\n')
+                        debug.write(f'Master: {a}, Normalizer: {n}, Target: {t}, Difference distance: {diff_d}, Difference angle: {diff_a}, Marker: {i}\r\n')
                         matches[mid]['Matches'] += 1
                         matches[mid]['Marker 1'] = a
                         matches[mid][f'Marker {list(normd_markers.keys())[0]}'] = n
                         matches[mid][f'Marker {i}'] = t
                     elif f'Marker {i}' not in list(matches[mid].keys()):
-                        # debug.write(f'Master: {a}, Normalizer: {n}, Target: {t}, Difference distance: {diff_d}, Difference angle: {diff_a}, Marker: {i}\r\n')
+                        debug.write(f'Master: {a}, Normalizer: {n}, Target: {t}, Difference distance: {diff_d}, Difference angle: {diff_a}, Marker: {i}\r\n')
                         matches[mid]['Matches'] += 1
                         matches[mid][f'Marker {i}'] = t
 
