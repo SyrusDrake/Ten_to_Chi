@@ -1,25 +1,37 @@
 # Florian Fruehwirth
-# Starmap Alpha
-# Last change: 13.02.2020
+# Testmap: Functionally the same as starmap but creates simpler output files for testing purposes
+# Last change: 27.09.2020
+# Longitude = right ascension
+# Latitude = declination
+
 
 import math as m
 import time
 import shelve
+from pathlib import Path
+import os
 
 hip = open('hip_main.dat')
+# hip = open('hip_test.dat')
 lines = hip.readlines()  # Puts every line of the catalog in an list item
 stars = []  # Empty list of stars
-ngstars = []  # List of stars with missing valeus
 distances = {}
+angles = {}
+temp_dict = {}
+calculations = 0
 latitude = 47  # Latitde of the observer
-ybp = 30000  # Years before present
+ybp = 0  # Years before present
+step_size = 5000
+ybp_max = 0
 deg_per_mas = 0.000000278  # conversion factor from miliarcseconds to degrees
 dec_limit = -(90 - latitude)  # Declination limit based on observer latitude
-mag_limit = 4.8
-# 6.5 is limit of visibility. 4.8 is 1025 stars
+mag_limit = 5.3  # 6.5 is limit of visibility. 4.8 is 1025 stars.
+neighbours = 200
+norm_dist = {}
+norm_ang = {}
 
 
-# get all star
+# get all stars
 def chop(line):
     choppedline = []
     list_with_space = line.rsplit('|')
@@ -56,12 +68,9 @@ def calculate_new_coordinates(ra, de, pm_ra, pm_de, ybp):
 # </cf>
 
 
-# <cf> Function to calculate angular distance between stars
-
 # Function to calculate angular distance between stars
 def calculate_angular_distance(active_entry, target_entry):  # Takes HIP IDs as input
-    active_hip = active_entry['hip']
-    target_hip = target_entry['hip']
+
     ra1 = active_entry['ra']
     dec1 = active_entry['de']
     ra2 = target_entry['ra']
@@ -76,8 +85,12 @@ def calculate_angular_distance(active_entry, target_entry):  # Takes HIP IDs as 
     ang = m.degrees(m.acos((m.sin(dec1) * m.sin(dec2)) + (m.cos(dec1) * m.cos(dec2) * m.cos(ra1 - ra2))))
     return ang
 
-# </cf>
 
+for ybp in range(ybp, ybp_max+1, step_size):
+    stars = []  # Empty list of stars
+    distances = {}
+    angles = {}
+    temp_dict = {}
 
 # <cf> Creates list of star dictionary
 for line in lines:
@@ -99,32 +112,97 @@ for line in lines:
 
     except ValueError:
         # data missing
-        ngstars.append(newstar)
+        pass
 # </cf>
-
-
-todo = int(((len(stars) - 1) * len(stars)) / 2)  # How many calculations are necessary. Might be removed later.
-calculations = 0
 
 # Creates an empty dictionary of dictionaries since creating nested entries from scratch seems to be impossible.
 for i in stars:
-    distances[i['hip']] = {}
+    distances[f"{i['hip']}"] = {}
+    angles[f"{i['hip']}"] = {}
 
+# <cf> Creates distances-list
 startTime = time.time()
-for i in stars:
-    active_hip = i['hip']
-    for k in stars:
-        target_hip = k['hip']
+for a in stars:
+    active_hip = f"{a['hip']}"
+    for t in stars:
+        target_hip = f"{t['hip']}"
         if target_hip in distances and active_hip in distances[target_hip]:  # Checks if the calculation has already been done in reverse
             pass
-        elif (i != k):  # Avoids calculating distances of 0
-            ang = calculate_angular_distance(i, k)
+        elif (a != t):  # Avoids calculating distances of 0
+            ang = calculate_angular_distance(a, t)
             distances[active_hip][target_hip] = distances[target_hip][active_hip] = ang
             calculations += 1
-            print(f"{calculations}/{todo}")  # Shows how many calculations have been done already vs how many are necessary
 
-print(f"Completed {calculations} calculations for {len(stars)} stars in {(time.time() - startTime)} seconds.")
+# Sorts the distances and removes all but the closest (number defined above as "neighbours")
+for a in distances:
+    distances[a] = {k: v for k, v in sorted(distances[a].items(), key=lambda item: item[1])}
+    del_list = list(distances[a].keys())[neighbours:]
+    for i in del_list:
+        del distances[a][i]
 
-save_file = shelve.open("star_save", "n")
-save_file['distances'] = distances
-save_file.close()
+# Normalizes all distances by setting the closest one as 1 and dividing the others by its value
+for i in distances:
+    norm_dist[i] = {}
+    for d in distances[i]:
+        norm_dist[i][d] = {}
+        divisor = distances[i][d]
+        for x in distances[i]:
+            normalized = distances[i][x]/divisor
+            norm_dist[i][d][x] = normalized
+# </cf>
+
+# <cf> Calculates angles between stars
+# Calculates bearings between stars
+for master in stars:
+    active_hip = f"{master['hip']}"
+    for t in distances[active_hip]:
+        target = next(item for item in stars if item["hip"] == int(t))
+        m_ra = m.radians(master['cal_ra'])
+        m_dec = m.radians(master['cal_de'])
+        t_ra = m.radians(target['cal_ra'])
+        t_dec = m.radians(target['cal_de'])
+        x = m.cos(t_dec) * m.sin(t_ra-m_ra)
+        y = m.cos(m_dec) * m.sin(t_dec) - m.sin(m_dec) * m.cos(t_dec) * m.cos(t_ra-m_ra)
+        ang = m.degrees(m.atan2(x, y))
+        angles[active_hip][t] = -ang
+
+# Calculates angle between a star, its closest neighbour and every other star, based on their bearings
+for i in angles:
+    norm_ang[i] = {}
+    for s in angles[i]:
+        norm_ang[i][s] = {}
+        secondary = angles[i][s]
+        for x in angles[i]:
+            normalized = secondary-angles[i][x]
+            if normalized > 180:
+                normalized = normalized-360
+            elif normalized < -180:
+                normalized += 360
+            norm_ang[i][s][x] = normalized
+
+# </cf> Calculates angles between stars
+
+
+# <cf> Saving data
+
+# folder_path = Path.cwd() / f"Map_{latitude}N"
+# save_file = Path.cwd() / f"Map_{latitude}N" / f"Map_{ybp}BP.smp"
+
+folder_path = Path.cwd() / "Test"
+# save_file = Path.cwd() / "Test" / "full.smp"
+save_file = Path.cwd() / "Test" / "large.smp"
+
+if not os.path.exists(folder_path):
+    os.mkdir(folder_path)
+else:
+    pass
+
+save_data = shelve.open(str(save_file), "n")
+save_data['mag_limit'] = mag_limit
+save_data['angles'] = angles
+save_data['distances'] = distances
+save_data['normalized_angles'] = norm_ang
+save_data['normalized_distances'] = norm_dist
+save_data.close()
+
+# </cf> Saving data

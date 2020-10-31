@@ -14,6 +14,7 @@ marker_ID = 1   # For assigning IDs to the markers. Necessary becausue canvas ob
 marker_list = {}   # The "collection" of all markers.
 distances = {}
 version = "alpha"
+max_size = 1024
 
 
 # <cf> Classes
@@ -61,18 +62,41 @@ def delete_marker(event):
 def import_image():
     # function to import the reference image
     global img
+    global max_size
     filename = filedialog.askopenfilename(filetypes=[('Image files', '*.jpg *.png *.jpeg')])     # The explorer window to let the user pick the file
-    img = ImageTk.PhotoImage(Image.open(filename))
-    canvas.create_image(0, 0, anchor='nw', image=img)
+    img = Image.open(filename)
+    x = img.size[0]
+    y = img.size[1]
+
+    if x > max_size or y > max_size:
+        ratio = x/y
+
+        if x > y:
+            x = int(max_size)
+            y = int(max_size/ratio)
+        if y > x:
+            y = int(max_size)
+            x = int(max_size*ratio)
+        if x == y:
+            x = y = 1024
+
+    img = img.resize((x, y), Image.ANTIALIAS)
+    img = ImageTk.PhotoImage(img)
+    canvas.create_image(10, 10, anchor='nw', image=img)
 
 
 def save_pattern():
     print(marker_list)
     save_list = {}
     filename = filedialog.asksaveasfilename(filetypes=[('Pattern', '*.ptn')])
+    x = 1
     for i in marker_list:
-        save_list[str(i)] = marker_list[i]
-    print(save_list)
+        ID = str(x)
+        save_list[ID] = {}
+        save_list[ID]['x'] = marker_list[i]['x']
+        save_list[ID]['y'] = marker_list[i]['y']
+        x += 1
+    print(f'Saved list: {save_list}')
     save_file = shelve.open(filename, "n")
     save_file['marker_list'] = save_list
     save_file.close()
