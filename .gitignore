@@ -64,3 +64,21 @@ test_save.dir
 star_save
 
 star_save_test
+
+Test_Cassiopeia/
+
+Test/
+
+References/
+
+Patterns/
+
+outputs/
+
+Map_47N/
+
+Constellations/
+
+__pycache__/
+
+debug.txt
