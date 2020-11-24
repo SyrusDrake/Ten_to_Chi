@@ -16,7 +16,9 @@ class App(tk.Tk):
         # They're NOT strings but actual classes.
         frames = [
             StartPage,
-            SecondPage
+            UserMap,
+            StarMap,
+            Astrolabe
         ]
 
         # Creates a container for all the pages (should never be visible)
@@ -47,14 +49,6 @@ class App(tk.Tk):
         self.configure(menu=menubar)
 
 
-# class Menu:
-#
-#     def __init__(self, master, controller):
-#         self.menubar = tk.Menu(master)
-#         master.config(menu=self.menubar)
-#         self.menubar.add_command(label='Start Page', command=lambda: controller.show_frame('SecondPage'))
-
-
 class StartPage(tk.Frame):
 
     def __init__(self, location, controller):
@@ -64,20 +58,77 @@ class StartPage(tk.Frame):
 
     def menubar(self, root):
         menubar = tk.Menu(root)
-        menubar.add_command(label="Go to page 2", command=lambda: root.show_frame('SecondPage'))
+        menubar.add_command(label="User Map")
+
+        pagemenu = tk.Menu(menubar, tearoff=0)
+        pagemenu.add_command(label="User Map", command=lambda: root.show_frame('UserMap'))
+        pagemenu.add_command(label="Star Map", command=lambda: root.show_frame('StarMap'))
+        pagemenu.add_command(label="Astrolabe", command=lambda: root.show_frame('Astrolabe'))
+        menubar.add_cascade(label='Pages', menu=pagemenu)
+
         return menubar
 
 
-class SecondPage(tk.Frame):
+class UserMap(tk.Frame):
 
     def __init__(self, location, controller):
-        tk.Frame.__init__(self, location, bg='green')
-        label = tk.Label(self, text='This is the second page')
+        tk.Frame.__init__(self, location, bg='yellow')
+        label = tk.Label(self, text='This is the User Map creation screen')
+        label.grid(row=0)
+
+        canvas = tk.Canvas(self, width=900, height=900, cursor='crosshair', bd=5, relief='groove')
+        canvas.grid(row=1, sticky='nsew')
+
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_rowconfigure(1, weight=1)
+
+    def menubar(self, root):
+        menubar = tk.Menu(root)
+        menubar.add_command(label="User Map")
+
+        pagemenu = tk.Menu(menubar, tearoff=0)
+        pagemenu.add_command(label="Star Map", command=lambda: root.show_frame('StarMap'))
+        pagemenu.add_command(label="Astrolabe", command=lambda: root.show_frame('Astrolabe'))
+        menubar.add_cascade(label='Pages', menu=pagemenu)
+
+        return menubar
+
+
+class StarMap(tk.Frame):
+
+    def __init__(self, location, controller):
+        tk.Frame.__init__(self, location, bg='black')
+        label = tk.Label(self, text='This is the Star Map creation screen')
         label.grid(row=0)
 
     def menubar(self, root):
         menubar = tk.Menu(root)
-        menubar.add_command(label="Go to page 1", command=lambda: root.show_frame('StartPage'))
+        menubar.add_command(label="Star Map")
+
+        pagemenu = tk.Menu(menubar, tearoff=0)
+        pagemenu.add_command(label="User Map", command=lambda: root.show_frame('UserMap'))
+        pagemenu.add_command(label="Astrolabe", command=lambda: root.show_frame('Astrolabe'))
+        menubar.add_cascade(label='Pages', menu=pagemenu)
+
+        return menubar
+
+
+class Astrolabe(tk.Frame):
+
+    def __init__(self, location, controller):
+        tk.Frame.__init__(self, location, bg='green')
+        label = tk.Label(self, text='This is the calculation screen')
+        label.grid(row=0)
+
+    def menubar(self, root):
+        menubar = tk.Menu(root)
+        menubar.add_command(label="Star Map")
+
+        pagemenu = tk.Menu(menubar, tearoff=0)
+        pagemenu.add_command(label="User Map", command=lambda: root.show_frame('UserMap'))
+        pagemenu.add_command(label="StarMap", command=lambda: root.show_frame('StarMap'))
+        menubar.add_cascade(label='Pages', menu=pagemenu)
+
         return menubar
 
 
@@ -85,5 +136,5 @@ app = App()
 app.title("Stoney Skies")
 icon = tk.PhotoImage(file='icon.gif')
 app.tk.call('wm', 'iconphoto', app._w, icon)
-app.geometry('500x500+1400+400')
+app.geometry('1000x1000+1400+400')
 app.mainloop()
