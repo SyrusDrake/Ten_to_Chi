@@ -104,18 +104,6 @@ menubar.add_command(label="Test", command=test)
 
 menubar.add_command(label="Quit!", command=root.quit)
 
-# b_clear = tk.Button(control, text="Clear canvas", font=30, command=clear_canvas)
-# b_clear.pack(padx=5, fill='x', side='left')
-#
-# # b_test = tk.Button(control, text="Import", font=30, command=import_image)
-# # b_test.pack(pady=5, fill='x')
-#
-# b_test = tk.Button(control, text="Test", font=30, command=save_pattern)
-# b_test.pack(padx=5, fill='x', side='left')
-#
-# b_quit = tk.Button(control, text="Quit", font=30, command=root.quit)
-# b_quit.pack(padx=5, fill='x', side='left')
-
 
 # </cf> drawing the interface
 

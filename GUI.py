@@ -6,6 +6,10 @@
 # Menubar-switching: https://stackoverflow.com/questions/37621071/tkinter-add-menu-bar-in-frames
 
 import tkinter as tk
+from tkinter import filedialog
+import SetMarkers as mk
+from PIL import ImageTk, Image
+import shelve
 
 
 class App(tk.Tk):
@@ -72,19 +76,28 @@ class StartPage(tk.Frame):
 class UserMap(tk.Frame):
 
     def __init__(self, location, controller):
+        self.markers = mk.Markers()
+
         tk.Frame.__init__(self, location, bg='yellow')
         label = tk.Label(self, text='This is the User Map creation screen')
         label.grid(row=0)
 
-        canvas = tk.Canvas(self, width=900, height=900, cursor='crosshair', bd=5, relief='groove')
-        canvas.grid(row=1, sticky='nsew')
+        self.canvas = tk.Canvas(self, width=900, height=900, cursor='crosshair', bd=5, relief='groove')
+        self.canvas.bind('<Button-1>', lambda event: self.markers.add_marker(event, self.canvas, "white"))
+        self.canvas.bind('<Button-3>', lambda event: self.markers.delete_marker(event, self.canvas))
+        self.canvas.grid(row=1, sticky='nsew')
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(1, weight=1)
 
     def menubar(self, root):
         menubar = tk.Menu(root)
-        menubar.add_command(label="User Map")
+
+        current_menu = tk.Menu(menubar, tearoff=0)
+        current_menu.add_command(label='Import Image', command=lambda: self.import_image())
+        current_menu.add_command(label='Save Pattern', command=lambda: self.save_pattern())
+        current_menu.add_command(label='Clear Canvas', command=lambda: self.markers.clear_all(self.canvas))
+        menubar.add_cascade(label='User Map', menu=current_menu)
 
         pagemenu = tk.Menu(menubar, tearoff=0)
         pagemenu.add_command(label="Star Map", command=lambda: root.show_frame('StarMap'))
@@ -92,6 +105,47 @@ class UserMap(tk.Frame):
         menubar.add_cascade(label='Pages', menu=pagemenu)
 
         return menubar
+
+    def import_image(self):
+        # function to import the reference image
+        max_size = 1024
+        # The explorer window to let the user pick the file
+        filename = filedialog.askopenfilename(filetypes=[('Image files', '*.jpg *.png *.jpeg')])
+        self.img = Image.open(filename)
+        x = self.img.size[0]
+        y = self.img.size[1]
+
+        if x > max_size or y > max_size:
+            ratio = x/y
+
+            if x > y:
+                x = int(max_size)
+                y = int(max_size/ratio)
+            if y > x:
+                y = int(max_size)
+                x = int(max_size*ratio)
+            if x == y:
+                x = y = 1024
+
+        self.img = self.img.resize((x, y), Image.ANTIALIAS)
+        self.img = ImageTk.PhotoImage(self.img)
+        self.canvas.create_image(10, 10, anchor='nw', image=self.img)
+
+    def save_pattern(self):
+        print(self.markers.marker_list)
+        save_list = {}
+        filename = filedialog.asksaveasfilename(filetypes=[('Pattern', '*.ptn')])
+        x = 1
+        for i in self.markers.marker_list:
+            ID = str(x)
+            save_list[ID] = {}
+            save_list[ID]['x'] = self.markers.marker_list[i]['x']
+            save_list[ID]['y'] = self.markers.marker_list[i]['y']
+            x += 1
+        print(f'Saved list: {save_list}')
+        save_file = shelve.open(filename, "n")
+        save_file['marker_list'] = save_list
+        save_file.close()
 
 
 class StarMap(tk.Frame):
