@@ -15,55 +15,18 @@ marker_list = {}   # The "collection" of all markers.
 distances = {}
 version = "alpha"
 max_size = 1024
+markers = mk.Markers()
 
-
-# <cf> Classes
-
-
-# </cf> Classes
 
 # <cf> Functions
-
-def place_marker(event):
-    # Funuction to add the marker. Adds it to marker_list.
-    global marker_ID
-    global marker_list
-    # marker_list.append(mk.Marker(canvas, event.x, event.y, 'white'))
-    mk.Marker(canvas, event.x, event.y, 'white')
-    # newMarker = {}
-    # newMarker['ID'] = marker_ID
-    # newMarker['x'] = event.x
-    # newMarker['y'] = event.y
-    # marker_list.append(newMarker)
-    handle = canvas.find_withtag('marker')[-1]
-    marker_list[handle] = {'ID': marker_ID, 'x': event.x, 'y': event.y}
-    marker_ID += 1
-    print(marker_list)
-
-
-def clear_canvas():
-    global marker_ID
-    global marker_list
-    # Function to clear the entire canvas of all markers
-    canvas.delete('marker')
-    marker_ID = 1
-    marker_list = {}
-
-
-def delete_marker(event):
-    global marker_ID
-    global marker_list
-    # Function to delete the current marker under the mouse pointer.
-    object_id = (canvas.find_withtag('current')[0])  # object ID under cursor
-    del marker_list[object_id]
-    canvas.delete(object_id)  # deletes the object under cursor
 
 
 def import_image():
     # function to import the reference image
     global img
     global max_size
-    filename = filedialog.askopenfilename(filetypes=[('Image files', '*.jpg *.png *.jpeg')])     # The explorer window to let the user pick the file
+    # The explorer window to let the user pick the file
+    filename = filedialog.askopenfilename(filetypes=[('Image files', '*.jpg *.png *.jpeg')])
     img = Image.open(filename)
     x = img.size[0]
     y = img.size[1]
@@ -123,8 +86,8 @@ root.option_add('*tearOff', False)
 # control.pack(fill='x')
 canvas = tk.Canvas(cursor='crosshair', bd=5, relief='groove')
 # canvas.bind("<Configure>", draw_grid)
-canvas.bind('<Button-1>', place_marker)
-canvas.bind('<Button-3>', delete_marker)
+canvas.bind('<Button-1>', lambda event: markers.add_marker(event, canvas, "white"))
+canvas.bind('<Button-3>', lambda event: markers.delete_marker(event, canvas))
 canvas.pack(fill='both', expand=True)
 # img = ImageTk.PhotoImage(Image.open('/mnt/DATA/OneDrive/Personal Files/Programming/Python/Stoney_Skies/image.jpg'))
 # canvas.create_image(0, 0, anchor='nw', image=img)
@@ -135,7 +98,7 @@ m_canvas = tk.Menu(menubar)
 menubar.add_cascade(label='File', menu=m_canvas)
 m_canvas.add_command(label='Import Image', command=import_image)
 m_canvas.add_command(label='Save Pattern', command=save_pattern)
-m_canvas.add_command(label='Clear Canvas', command=clear_canvas)
+m_canvas.add_command(label='Clear Canvas', command=lambda: markers.clear_all(canvas))
 
 menubar.add_command(label="Test", command=test)
 
