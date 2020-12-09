@@ -1,13 +1,69 @@
 import math as m
-import time
 import shelve
 from pathlib import Path
 import os
+import tkinter.filedialog
 
 
-class Map:
+class Atlas:
 
-    def __init__(self, ybp, neighbours):
+    def __init__(self, latitude, ybp_min, step_size, ybp_max, mag_limit, neighbours):
+        self.latitude = latitude  # Latitude of the observer
+        self.step_size = step_size
+        self.ybp_min = ybp_min
+        self.ybp_max = ybp_max
+        self.mag_limit = mag_limit
+        self.neighbours = neighbours
+        self.dec_limit = -(90 - self.latitude)  # Declination limit based on observer latitude
+        self.DEG_PER_MAS = 0.000000278  # conversion factor from miliarcseconds to degrees
+        self.atlas = {}
+
+    def createAtlas(self):
+        for x in range(self.ybp_min, self.ybp_max + 1, self.step_size):
+            self.atlas[f"map_{x}BP"] = Map(x, self)
+            self.atlas[f"map_{x}BP"].createMap()
+
+    # def save(self):
+    #     min = int(self.ybp_min/1000)
+    #     max = int(self.ybp_max/1000)
+    #     path = Path.cwd() / "Atlases"
+    #     file = f"Atlas_{self.latitude}N_{min}k-{max}k.atl"
+    #
+    #     if not os.path.exists(path):
+    #         os.mkdir(path)
+    #     else:
+    #         pass
+    #
+    #     filename = tkinter.filedialog.asksaveasfilename(initialdir=path, initialfile=file, filetypes=[('Save file', '*.atl')])
+    #
+    #     s = shelve.open(filename)
+    #     s["atlas"] = self
+    #     s.close()
+
+    def save(self):
+        min = int(self.ybp_min/1000)
+        max = int(self.ybp_max/1000)
+        default = Path.cwd() / "Atlases" / f"Atlas_{self.latitude}N_{min}k-{max}k"
+
+        if not os.path.exists(default):
+            os.mkdir(default)
+
+        path = tkinter.filedialog.askdirectory(initialdir=default, title="Please select a directory")
+
+        if os.path.normpath(path) != os.path.normpath(default):
+            os.rmdir(default)
+
+        for map in self.atlas:
+            filename = os.path.join(path, f"Map_{int(self.atlas[map].ybp/1000)}k BP.map")
+            s = shelve.open(filename)
+            s["map"] = self.atlas[map]
+            s.close()
+
+
+class Map(Atlas):
+
+    def __init__(self, ybp, parent):
+        super().__init__(parent.latitude, parent.ybp_min, parent.step_size, parent.ybp_max, parent.mag_limit, parent.neighbours)
         self.ybp = ybp
         self.stars = []  # Empty list of stars
         self.distances = {}  # Distances from each star to its neighbours
@@ -15,7 +71,7 @@ class Map:
         self.norm_dist = {}
         self.norm_ang = {}
 
-    def calculate_new_coordinates(ra, de, pm_ra, pm_de, ybp):
+    def calculate_new_coordinates(self, ra, de, pm_ra, pm_de, ybp):
         if (pm_ra * ybp >= 360):
             new_ra = ra + ((pm_ra * ybp) % 360)
         else:
@@ -41,16 +97,33 @@ class Map:
         return new_ra, new_de
 
     # get all stars
-    def chop(line):
+    def chop(self, line):
         choppedline = []
         list_with_space = line.rsplit('|')
         for item in list_with_space:
             choppedline.append(item.strip())    # Removes whitepsaces (?)
         return choppedline
 
+    # Function to calculate angular distance between stars
+    def calculate_angular_distance(self, active_entry, target_entry):  # Takes HIP IDs as input
+
+        ra1 = active_entry['ra']
+        dec1 = active_entry['de']
+        ra2 = target_entry['ra']
+        dec2 = target_entry['de']
+
+        ra1 = m.radians(ra1)
+        dec1 = m.radians(dec1)
+
+        ra2 = m.radians(ra2)
+        dec2 = m.radians(dec2)
+
+        ang = m.degrees(m.acos((m.sin(dec1) * m.sin(dec2)) + (m.cos(dec1) * m.cos(dec2) * m.cos(ra1 - ra2))))
+        return ang
 
     def createMap(self):
-        self.hip = open('hip_main.dat')  # The HIP catalogue save_data
+        # self.hip = open('hip_main.dat')  # The HIP catalogue save_data
+        self.hip = open('hip_test.dat')  # The HIP catalogue save_data
         lines = self.hip.readlines()  # Puts every line of the catalog in an list item
 
         for line in lines:
@@ -62,17 +135,21 @@ class Map:
                 newstar['mag'] = float(chopdline[5])
                 newstar['ra'] = float(chopdline[8])
                 newstar['de'] = float(chopdline[9])
-                newstar['pm_ra'] = float(chopdline[12]) * Atlas.DEG_PER_MAS
-                newstar['pm_de'] = float(chopdline[13]) * Atlas.DEG_PER_MAS
-                newstar['cal_ra'], newstar['cal_de'] = self.calculate_new_coordinates(newstar['ra'], newstar['de'], newstar['pm_ra'], newstar['pm_de'], ybp)
+                newstar['pm_ra'] = float(chopdline[12]) * self.DEG_PER_MAS
+                newstar['pm_de'] = float(chopdline[13]) * self.DEG_PER_MAS
+                newstar['cal_ra'], newstar['cal_de'] = self.calculate_new_coordinates(newstar['ra'], newstar['de'], newstar['pm_ra'],
+                                                                                      newstar['pm_de'], self.ybp)
 
-                if newstar['cal_de'] > self.dec_limit and newstar['mag'] <= self.mag_limit:  # Checks if star is visible at position and due to brightness. Otherwise skips it.
+                # Checks if star is visible at position and due to brightness. Otherwise skips it.
+                if newstar['cal_de'] > self.dec_limit and newstar['mag'] <= self.mag_limit:
                     # Adds dictionary items
                     self.stars.append(newstar)
 
             except ValueError:
                 # data missing
                 pass
+
+        self.hip = None
 
         # Creates an empty dictionary of dictionaries since creating nested entries from scratch seems to be impossible.
         for i in self.stars:
@@ -83,7 +160,8 @@ class Map:
             active_hip = f"{a['hip']}"
             for t in self.stars:
                 target_hip = f"{t['hip']}"
-                if target_hip in self.distances and active_hip in self.distances[target_hip]:  # Checks if the calculation has already been done in reverse
+                # Checks if the calculation has already been done in reverse
+                if target_hip in self.distances and active_hip in self.distances[target_hip]:
                     pass
                 elif (a != t):  # Avoids calculating distances of 0
                     ang = self.calculate_angular_distance(a, t)
@@ -133,36 +211,3 @@ class Map:
                     elif normalized < -180:
                         normalized += 360
                     self.norm_ang[i][s][x] = normalized
-
-    # Function to calculate angular distance between stars
-    def calculate_angular_distance(active_entry, target_entry):  # Takes HIP IDs as input
-
-        ra1 = active_entry['ra']
-        dec1 = active_entry['de']
-        ra2 = target_entry['ra']
-        dec2 = target_entry['de']
-
-        ra1 = m.radians(ra1)
-        dec1 = m.radians(dec1)
-
-        ra2 = m.radians(ra2)
-        dec2 = m.radians(dec2)
-
-        ang = m.degrees(m.acos((m.sin(dec1) * m.sin(dec2)) + (m.cos(dec1) * m.cos(dec2) * m.cos(ra1 - ra2))))
-        return ang
-
-
-
-
-class Atlas:
-
-    def __init__(self, latitude, step_size, ybp_max, mag_limit, neighbours):
-        self.latitude = latitude  # Latitude of the observer
-        self.step_size = step_size
-        self.ybp_max = ybp_max
-        self.mag_limit = mag_limit
-        self.neighbours = neighbours
-        self.dec_limit = -(90 - self.latitude)  # Declination limit based on observer latitude
-
-
-        Atlas.DEG_PER_MAS = 0.000000278  # conversion factor from miliarcseconds to degrees
