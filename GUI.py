@@ -57,12 +57,31 @@ class StartPage(tk.Frame):
 
     def __init__(self, location, controller):
         tk.Frame.__init__(self, location, bg='blue')
-        label = tk.Label(self, text='This is the start page')
-        label.grid(row=0)
+        title = tk.Label(self, text='This is the start page')
+        title.grid(row=0, pady=20)
+
+        usermap_lable = tk.Label(self, text='Create a pattern map from an image')
+        usermap_lable.grid(row=1, pady=5)
+        usermap_button = tk.Button(self, text='User Map', command=lambda: controller.show_frame('UserMap'))
+        usermap_button.grid(row=2, pady=(0, 20))
+
+        usermap_lable = tk.Label(self, text='Calculate a star map for a given position and time')
+        usermap_lable.grid(row=3, pady=5)
+        usermap_button = tk.Button(self, text='Star Map', command=lambda: controller.show_frame('StarMap'))
+        usermap_button.grid(row=4, pady=(0, 20))
+
+        usermap_lable = tk.Label(self, text='Search for a specific pattern in the stars')
+        usermap_lable.grid(row=5, pady=5)
+        usermap_button = tk.Button(self, text='Astrolabe', command=lambda: controller.show_frame('Astrolabe'))
+        usermap_button.grid(row=6, pady=(0, 20))
+
+
+        self.grid_columnconfigure(0, weight=1)
+        # self.grid_rowconfigure(0, weight=1)
 
     def menubar(self, root):
         menubar = tk.Menu(root)
-        menubar.add_command(label="User Map")
+        menubar.add_command(label="Start Page")
 
         pagemenu = tk.Menu(menubar, tearoff=0)
         pagemenu.add_command(label="User Map", command=lambda: root.show_frame('UserMap'))
@@ -83,7 +102,7 @@ class UserMap(tk.Frame):
         label.grid(row=0)
 
         self.canvas = tk.Canvas(self, width=900, height=900, cursor='crosshair', bd=5, relief='groove')
-        self.canvas.bind('<Button-1>', lambda event: self.markers.add_marker(event, self.canvas, "white"))
+        self.canvas.bind('<Button-1>', lambda event: self.markers.add_marker(event.x, event.y, self.canvas, "white"))
         self.canvas.bind('<Button-3>', lambda event: self.markers.delete_marker(event, self.canvas))
         self.canvas.grid(row=1, sticky='nsew')
 
@@ -176,7 +195,7 @@ class Astrolabe(tk.Frame):
 
     def menubar(self, root):
         menubar = tk.Menu(root)
-        menubar.add_command(label="Star Map")
+        menubar.add_command(label="Astrolabe")
 
         pagemenu = tk.Menu(menubar, tearoff=0)
         pagemenu.add_command(label="User Map", command=lambda: root.show_frame('UserMap'))
