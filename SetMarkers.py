@@ -3,13 +3,13 @@ class Markers:
     # will be unnecessary in the future and is only used for development.
 
     def __init__(self):
-        self.current_ID = 1  # For assigning IDs to the markers. Necessary becausue canvas object count starts at
+        self.current_ID = 1  # For assigning IDs to the markers. Necessary becausue canvas object count starts at 0
         self.marker_list = {}  # The "collection" of all markers.
         self.radius = 7     # Radius is fixed. Might be an option later.
 
-    def add_marker(self, event, canvas, color):
-        xCoord = event.x
-        yCoord = event.y
+    def add_marker(self, x, y, canvas, color):
+        xCoord = x
+        yCoord = y
         x1 = xCoord - self.radius  # Because the oval takes coordinates of the
         # bounding box, that has to be calculates from given center coords.
         y1 = yCoord - self.radius
