@@ -115,6 +115,7 @@ class UserMap(tk.Frame):
         current_menu = tk.Menu(menubar, tearoff=0)
         current_menu.add_command(label='Import Image', command=lambda: self.import_image())
         current_menu.add_command(label='Save Pattern', command=lambda: self.save_pattern())
+        current_menu.add_command(label='Load Pattern', command=lambda: self.load_pattern())
         current_menu.add_command(label='Clear Canvas', command=lambda: self.markers.clear_all(self.canvas))
         menubar.add_cascade(label='User Map', menu=current_menu)
 
@@ -131,6 +132,7 @@ class UserMap(tk.Frame):
         # The explorer window to let the user pick the file
         filename = filedialog.askopenfilename(filetypes=[('Image files', '*.jpg *.png *.jpeg')])
         self.img = Image.open(filename)
+        self.img_save = None
         x = self.img.size[0]
         y = self.img.size[1]
 
@@ -147,6 +149,7 @@ class UserMap(tk.Frame):
                 x = y = 1024
 
         self.img = self.img.resize((x, y), Image.ANTIALIAS)
+        self.img_save = self.img
         self.img = ImageTk.PhotoImage(self.img)
         self.canvas.create_image(10, 10, anchor='nw', image=self.img)
 
@@ -164,7 +167,19 @@ class UserMap(tk.Frame):
         print(f'Saved list: {save_list}')
         save_file = shelve.open(filename, "n")
         save_file['marker_list'] = save_list
+        if self.img_save is not None:
+            print("image")
+            save_file['image'] = self.img_save
         save_file.close()
+
+    def load_pattern(self):
+        loadfile = filedialog.askopenfilename(filetypes=[('Patterns', '*.ptn')])
+        self.img = shelve.open(loadfile)['image']
+        self.img = ImageTk.PhotoImage(self.img)
+        self.canvas.create_image(10, 10, anchor='nw', image=self.img)
+        marker_list = shelve.open(loadfile)['marker_list']
+        for m in marker_list:
+            self.markers.add_marker(marker_list[m]['x'], marker_list[m]['y'], self.canvas, 'white')
 
 
 class StarMap(tk.Frame):
