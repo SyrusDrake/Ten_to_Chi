@@ -1,6 +1,6 @@
 # Florian Fruehwirth
 # Main GUI for the app with different pages for different functions
-# Last change: 05.11.2020
+# Last change: 02.02.2021
 # Frame-switching based on:
 # https://www.geeksforgeeks.org/tkinter-application-to-switch-between-different-page-frames/
 # Menubar-switching: https://stackoverflow.com/questions/37621071/tkinter-add-menu-bar-in-frames
@@ -10,6 +10,7 @@ from tkinter import filedialog
 import SetMarkers as mk
 from PIL import ImageTk, Image
 import shelve
+from Atlas import *
 
 
 class App(tk.Tk):
@@ -189,6 +190,30 @@ class StarMap(tk.Frame):
         label = tk.Label(self, text='This is the Star Map creation screen')
         label.grid(row=0)
 
+        self.mag_scale = tk.Scale(self, label='Magnitude', from_=1.0, to=6.5, resolution=0.5, orient='horizontal')
+        self.mag_scale.set(4.5)
+        self.mag_scale.grid(row=1, pady=20)
+
+        self.timescale = tk.Label(self, text='Timescale')
+        self.start_scale = tk.Scale(self, label='Initial Year', from_=0, to=60000, resolution=1000, orient='horizontal', command=self.update_start)
+        self.end_scale = tk.Scale(self, label='Final Year', from_=0, to=60000, resolution=1000, orient='horizontal', command=self.update_end)
+        self.end_scale.set(60000)
+        self.step_scale = tk.Scale(self, label='Step Size', from_=500, to=60000, resolution=500, orient='horizontal')
+        self.timescale.grid(row=2)
+        self.start_scale.grid(row=3)
+        self.end_scale.grid(row=4)
+        self.step_scale.grid(row=5)
+
+        button_test = tk.Button(self, text="Test", command=self.test)
+        button_test.grid(row=6, pady=5)
+
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        # self.grid_columnconfigure(2, weight=1)
+        # self.grid_rowconfigure(0, weight=1)
+        # self.grid_rowconfigure(1, weight=1)
+
+
     def menubar(self, root):
         menubar = tk.Menu(root)
         menubar.add_command(label="Star Map")
@@ -199,6 +224,28 @@ class StarMap(tk.Frame):
         menubar.add_cascade(label='Pages', menu=pagemenu)
 
         return menubar
+
+    def test(self):
+        # self.mag = self.mag_scale.get()
+        self.Atlas = Atlas(47, self.start_scale.get(), self.step_scale.get(), self.end_scale.get(), self.mag_scale.get(), 100)
+        self.Atlas.createAtlas()
+        print("Testing:")
+        print(f"Magnitude: {self.Atlas.mag_limit}")
+        print(f"Time Scale: From {self.Atlas.ybp_min} to {self.Atlas.ybp_max} with {self.Atlas.step_size}-year steps")
+
+    def update_start(self, x):
+        self.end_scale.config(from_=x)
+        year_diff = self.end_scale.get() - int(x)
+        self.step_scale.config(to=year_diff)
+        if (year_diff == 0):
+            self.step_scale.config(from_=0)
+
+    def update_end(self, x):
+        self.start_scale.config(to=x)
+        year_diff = int(x) - self.start_scale.get()
+        self.step_scale.config(to=year_diff)
+        if (year_diff == 0):
+            self.step_scale.config(from_=0)
 
 
 class Astrolabe(tk.Frame):
