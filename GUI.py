@@ -1,12 +1,12 @@
 # Florian Fruehwirth
 # Main GUI for the app with different pages for different functions
-# Last change: 02.02.2021
+# Last change: 04.02.2021
 # Frame-switching based on:
 # https://www.geeksforgeeks.org/tkinter-application-to-switch-between-different-page-frames/
 # Menubar-switching: https://stackoverflow.com/questions/37621071/tkinter-add-menu-bar-in-frames
 
 import tkinter as tk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 import SetMarkers as mk
 from PIL import ImageTk, Image
 import shelve
@@ -204,8 +204,22 @@ class StarMap(tk.Frame):
         self.end_scale.grid(row=4)
         self.step_scale.grid(row=5)
 
+        self.position = tk.Label(self, text='Position in °N (int)')
+        vpos = (self.register(self.validate_latitude), "%P")
+        self.position_entry = tk.Entry(self, validate="key", validatecommand=vpos)
+        self.position.grid(row=6, pady=(20, 0))
+        self.position_entry.grid(row=7)
+
+        self.neighbors = tk.Label(self, text='Number of nearest neighbours for each star to check')
+        vnei = (self.register(self.validate_neighbors), "%P")
+        self.ngh = tk.StringVar()
+        self.ngh.set(100)
+        self.neighbors_entry = tk.Entry(self, validate="key", validatecommand=vnei, textvariable=self.ngh)
+        self.neighbors.grid(row=8, pady=(20, 0))
+        self.neighbors_entry.grid(row=9)
+
         button_test = tk.Button(self, text="Test", command=self.test)
-        button_test.grid(row=6, pady=5)
+        button_test.grid(row=10, pady=5)
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
@@ -226,12 +240,22 @@ class StarMap(tk.Frame):
         return menubar
 
     def test(self):
-        # self.mag = self.mag_scale.get()
-        self.Atlas = Atlas(47, self.start_scale.get(), self.step_scale.get(), self.end_scale.get(), self.mag_scale.get(), 100)
-        self.Atlas.createAtlas()
-        print("Testing:")
-        print(f"Magnitude: {self.Atlas.mag_limit}")
-        print(f"Time Scale: From {self.Atlas.ybp_min} to {self.Atlas.ybp_max} with {self.Atlas.step_size}-year steps")
+        if (self.position_entry.get() == ""):
+            messagebox.showwarning("Missing Latitude", "Please input a position between 0°N and 90°N")
+        elif (int(self.neighbors_entry.get()) > 100):
+            neighbors_warning = messagebox.askyesno("Large Number", "The number of nearest neighbours you set may result in excessively large file sizes and little additional benefit over a value of 100. Continue?")
+            if neighbors_warning is True:
+                print('continue')
+            else:
+                print('halt')
+        else:
+            self.Atlas = Atlas(int(self.position_entry.get()), self.start_scale.get(), self.step_scale.get(), self.end_scale.get(), self.mag_scale.get(), int(self.neighbors_entry.get()))
+            self.Atlas.createAtlas()
+            print("Testing:")
+            print(f"Magnitude: {self.Atlas.mag_limit}")
+            print(f"Time Scale: From {self.Atlas.ybp_min} to {self.Atlas.ybp_max} with {self.Atlas.step_size}-year steps")
+            print(f"Position: {self.Atlas.latitude}°N")
+            print(f"Neighbors: {self.Atlas.neighbours}")
 
     def update_start(self, x):
         self.end_scale.config(from_=x)
@@ -246,6 +270,20 @@ class StarMap(tk.Frame):
         self.step_scale.config(to=year_diff)
         if (year_diff == 0):
             self.step_scale.config(from_=0)
+
+    def validate_latitude(self, input):
+        if input.isnumeric() and int(input) <= 90 or input == "":
+            return True
+        else:
+            return False
+
+    def validate_neighbors(self, input):
+        if input.isnumeric() and int(input) <= 5000 or input == "":
+            print("good")
+            return True
+        else:
+            print('bad')
+            return False
 
 
 class Astrolabe(tk.Frame):
