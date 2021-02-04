@@ -19,9 +19,14 @@ class Atlas:
         self.atlas = {}
 
     def createAtlas(self):
-        for x in range(self.ybp_min, self.ybp_max + 1, self.step_size):
-            self.atlas[f"map_{x}BP"] = Map(x, self)
-            self.atlas[f"map_{x}BP"].createMap()
+        if (self.step_size == 0):
+            self.atlas[f"map_{0}BP"] = Map(0, self)
+            self.atlas[f"map_{0}BP"].createMap()
+
+        else:
+            for x in range(self.ybp_min, self.ybp_max + 1, self.step_size):
+                self.atlas[f"map_{x}BP"] = Map(x, self)
+                self.atlas[f"map_{x}BP"].createMap()
 
     # def save(self):
     #     min = int(self.ybp_min/1000)
