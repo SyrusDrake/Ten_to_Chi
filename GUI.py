@@ -6,11 +6,13 @@
 # Menubar-switching: https://stackoverflow.com/questions/37621071/tkinter-add-menu-bar-in-frames
 
 import tkinter as tk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, ttk
 import SetMarkers as mk
 from PIL import ImageTk, Image
 import shelve
 from Atlas import *
+import time
+from threading import Thread, Event
 
 
 class App(tk.Tk):
@@ -186,6 +188,7 @@ class UserMap(tk.Frame):
 class StarMap(tk.Frame):
 
     def __init__(self, location, controller):
+        self.stop_calculations = Event()
         tk.Frame.__init__(self, location, bg='black')
         label = tk.Label(self, text='This is the Star Map creation screen')
         label.grid(row=0)
@@ -218,8 +221,12 @@ class StarMap(tk.Frame):
         self.neighbors.grid(row=8, pady=(20, 0))
         self.neighbors_entry.grid(row=9)
 
+        self.progress_bar = ttk.Progressbar(self, orient='horizontal', length=100, mode='indeterminate')
+
         button_test = tk.Button(self, text="Test", command=self.test)
-        button_test.grid(row=10, pady=5)
+        button_test.grid(row=11, pady=5)
+        button_stop = tk.Button(self, text="Stop", command=self.stop_calculations.set)
+        button_stop.grid(row=12, pady=5)
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
@@ -246,9 +253,29 @@ class StarMap(tk.Frame):
             neighbors_warning = messagebox.askyesno("Large Number", "The number of nearest neighbours you set may result in excessively large file sizes and little additional benefit over a value of 100. Continue?")
             if neighbors_warning is True:
                 print('continue')
+                Thread(target=self.calculate_atlas).start()
             else:
                 print('halt')
         else:
+            start = messagebox.askyesno("Commence?", "Start the calculated with the parameters specified? Calculations may take several minutes to complete.")
+            if start is True:
+                print('continue')
+                Thread(target=self.calculate_atlas).start()
+            else:
+                print('halt')
+
+    def calculate_atlas(self):
+        self.stop_calculations.clear()
+        self.progress_bar.grid(row=10, pady=10)
+        self.progress_bar.start(10)
+        print('calculating Atlas')
+        while True:
+            for i in range(1, 6):
+                time.sleep(1)
+                if self.stop_calculations.is_set():
+                    print('stopping')
+                    self.progress_bar.stop()
+                    return
             self.Atlas = Atlas(int(self.position_entry.get()), self.start_scale.get(), self.step_scale.get(), self.end_scale.get(), self.mag_scale.get(), int(self.neighbors_entry.get()))
             self.Atlas.createAtlas()
             print("Testing:")
@@ -256,6 +283,8 @@ class StarMap(tk.Frame):
             print(f"Time Scale: From {self.Atlas.ybp_min} to {self.Atlas.ybp_max} with {self.Atlas.step_size}-year steps")
             print(f"Position: {self.Atlas.latitude}°N")
             print(f"Neighbors: {self.Atlas.neighbours}")
+            self.progress_bar.stop()
+            break
 
     def update_start(self, x):
         self.end_scale.config(from_=x)
