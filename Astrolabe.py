@@ -1,16 +1,19 @@
 import math as m
+from os import path
+from datetime import date
 
 class Astrolabe:
 
     def __init__(self, user_map, starmap):
         self.matches = {}
         self.norma_markers = {}
-        self.debug = open("debug.txt", "w+")
+        # self.debug = open("debug.txt", "w+")
         self.star_distances = starmap.distances
         self.star_angles = starmap.angles
         self.normd_star = starmap.norm_dist
         self.norma_star = starmap.norm_ang
         self.markers = user_map
+        self.current_date = date.today().strftime("%Y-%m-%d")
 
     def calculate_marker_distances(self):
         marker_distances = {}
@@ -62,6 +65,18 @@ class Astrolabe:
         for k in list(self.normd_markers.keys()):
             self.norma_markers[k] = temp_dict[k]
 
+    def make_file(self, new_file, current):
+        if path.exists(new_file):
+            self.make_file(f"{self.current_date}_{current+1}.txt", current+1)
+        else:
+            self.save_file = open(new_file, "w")
+            self.filename = new_file
+
+    def write(self, string):
+        with open(self.filename, "a+") as file:
+            file.write(string)
+            file.write("\n")
+
     def calculate(self):
 
         for a in self.normd_star:
@@ -82,7 +97,7 @@ class Astrolabe:
 
                         if abs(diff_d) < 0.40 and abs(diff_a) < 3.9:
                             if self.matches[mid]['Matches'] == 0:
-                                self.debug.write(f'Master: {a}, Normalizer: {n}, Target: {t}, Difference distance: {diff_d}, Difference angle: {diff_a}, Marker: {i}\r\n')
+                                # self.debug.write(f'Master: {a}, Normalizer: {n}, Target: {t}, Difference distance: {diff_d}, Difference angle: {diff_a}, Marker: {i}\r\n')
                                 self.matches[mid]['Matches'] += 1
                                 self.matches[mid]['Diff_d'] += abs(diff_d)
                                 self.matches[mid]['Diff_a'] += abs(diff_a)
@@ -90,7 +105,7 @@ class Astrolabe:
                                 self.matches[mid][f'Marker {list(self.normd_markers.keys())[0]}'] = n
                                 self.matches[mid][f'Marker {i}'] = t
                             elif f'Marker {i}' not in list(self.matches[mid].keys()):
-                                self.debug.write(f'Master: {a}, Normalizer: {n}, Target: {t}, Difference distance: {diff_d}, Difference angle: {diff_a}, Marker: {i}\r\n')
+                                # self.debug.write(f'Master: {a}, Normalizer: {n}, Target: {t}, Difference distance: {diff_d}, Difference angle: {diff_a}, Marker: {i}\r\n')
                                 self.matches[mid]['Matches'] += 1
                                 self.matches[mid]['Diff_d'] += abs(diff_d)
                                 self.matches[mid]['Diff_a'] += abs(diff_a)
@@ -113,15 +128,31 @@ class Astrolabe:
         for i in del_list:
             del self.sort_ang[i]
 
-        print("Sorted by distance-deviation--------------")
+        self.make_file(f"{self.current_date}.txt", 0)
+
+        self.write("----------Sorted by distance-deviation----------")
         for i in self.sort_dist:
             print(self.sort_dist[i])
 
-        print("Sorted by angle-deviation--------------")
+        self.write("----------Sorted by angle-deviation----------")
         for i in self.sort_ang:
-            print(self.sort_ang[i])
+            self.write(self.sort_ang[i])
 
-        print("In both--------------")
+        self.write("----------In both----------")
         for i in self.sort_dist:
             if i in self.sort_ang:
-                print(self.sort_dist[i])
+                self.write(self.sort_dist[i])
+
+
+        # print("Sorted by distance-deviation--------------")
+        # for i in self.sort_dist:
+        #     print(self.sort_dist[i])
+        #
+        # print("Sorted by angle-deviation--------------")
+        # for i in self.sort_ang:
+        #     print(self.sort_ang[i])
+        #
+        # print("In both--------------")
+        # for i in self.sort_dist:
+        #     if i in self.sort_ang:
+        #         print(self.sort_dist[i])
