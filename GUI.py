@@ -11,8 +11,11 @@ import SetMarkers as mk
 from PIL import ImageTk, Image
 import shelve
 from Atlas import *
+from Astrolabe import *
 import time
 from threading import Thread, Event
+import shelve
+from os import path
 
 
 class App(tk.Tk):
@@ -23,9 +26,9 @@ class App(tk.Tk):
         # They're NOT strings but actual classes.
         frames = [
             StartPage,
-            UserMap,
-            StarMap,
-            Astrolabe
+            UserMapPage,
+            StarMapPage,
+            AstrolabePage
         ]
 
         # Creates a container for all the pages (should never be visible)
@@ -65,17 +68,17 @@ class StartPage(tk.Frame):
 
         usermap_lable = tk.Label(self, text='Create a pattern map from an image')
         usermap_lable.grid(row=1, pady=5)
-        usermap_button = tk.Button(self, text='User Map', command=lambda: controller.show_frame('UserMap'))
+        usermap_button = tk.Button(self, text='User Map', command=lambda: controller.show_frame('UserMapPage'))
         usermap_button.grid(row=2, pady=(0, 20))
 
         usermap_lable = tk.Label(self, text='Calculate a star map for a given position and time')
         usermap_lable.grid(row=3, pady=5)
-        usermap_button = tk.Button(self, text='Star Map', command=lambda: controller.show_frame('StarMap'))
+        usermap_button = tk.Button(self, text='Star Map', command=lambda: controller.show_frame('StarMapPage'))
         usermap_button.grid(row=4, pady=(0, 20))
 
         usermap_lable = tk.Label(self, text='Search for a specific pattern in the stars')
         usermap_lable.grid(row=5, pady=5)
-        usermap_button = tk.Button(self, text='Astrolabe', command=lambda: controller.show_frame('Astrolabe'))
+        usermap_button = tk.Button(self, text='Astrolabe', command=lambda: controller.show_frame('AstrolabePage'))
         usermap_button.grid(row=6, pady=(0, 20))
 
 
@@ -87,15 +90,15 @@ class StartPage(tk.Frame):
         menubar.add_command(label="Start Page")
 
         pagemenu = tk.Menu(menubar, tearoff=0)
-        pagemenu.add_command(label="User Map", command=lambda: root.show_frame('UserMap'))
-        pagemenu.add_command(label="Star Map", command=lambda: root.show_frame('StarMap'))
-        pagemenu.add_command(label="Astrolabe", command=lambda: root.show_frame('Astrolabe'))
+        pagemenu.add_command(label="User Map", command=lambda: root.show_frame('UserMapPage'))
+        pagemenu.add_command(label="Star Map", command=lambda: root.show_frame('StarMapPage'))
+        pagemenu.add_command(label="Astrolabe", command=lambda: root.show_frame('AstrolabePage'))
         menubar.add_cascade(label='Pages', menu=pagemenu)
 
         return menubar
 
 
-class UserMap(tk.Frame):
+class UserMapPage(tk.Frame):
 
     def __init__(self, location, controller):
         self.markers = mk.Markers()
@@ -123,8 +126,8 @@ class UserMap(tk.Frame):
         menubar.add_cascade(label='User Map', menu=current_menu)
 
         pagemenu = tk.Menu(menubar, tearoff=0)
-        pagemenu.add_command(label="Star Map", command=lambda: root.show_frame('StarMap'))
-        pagemenu.add_command(label="Astrolabe", command=lambda: root.show_frame('Astrolabe'))
+        pagemenu.add_command(label="Star Map", command=lambda: root.show_frame('StarMapPage'))
+        pagemenu.add_command(label="Astrolabe", command=lambda: root.show_frame('AstrolabePage'))
         menubar.add_cascade(label='Pages', menu=pagemenu)
 
         return menubar
@@ -185,7 +188,7 @@ class UserMap(tk.Frame):
             self.markers.add_marker(marker_list[m]['x'], marker_list[m]['y'], self.canvas, 'white')
 
 
-class StarMap(tk.Frame):
+class StarMapPage(tk.Frame):
 
     def __init__(self, location, controller):
         self.stop_calculations = Event()
@@ -222,11 +225,12 @@ class StarMap(tk.Frame):
         self.neighbors_entry.grid(row=9)
 
         self.progress_bar = ttk.Progressbar(self, orient='horizontal', length=100, mode='indeterminate')
+        self.label_complete = tk.Label(self, text='Complete!', fg='green')
 
-        button_test = tk.Button(self, text="Test", command=self.test)
+        button_test = tk.Button(self, text="Start", command=self.commence)
         button_test.grid(row=11, pady=5)
-        button_stop = tk.Button(self, text="Stop", command=self.stop_calculations.set)
-        button_stop.grid(row=12, pady=5)
+        # button_stop = tk.Button(self, text="Stop", command=self.stop_calculations.set)
+        # button_stop.grid(row=12, pady=5)
 
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
@@ -240,51 +244,45 @@ class StarMap(tk.Frame):
         menubar.add_command(label="Star Map")
 
         pagemenu = tk.Menu(menubar, tearoff=0)
-        pagemenu.add_command(label="User Map", command=lambda: root.show_frame('UserMap'))
-        pagemenu.add_command(label="Astrolabe", command=lambda: root.show_frame('Astrolabe'))
+        pagemenu.add_command(label="User Map", command=lambda: root.show_frame('UserMapPage'))
+        pagemenu.add_command(label="Astrolabe", command=lambda: root.show_frame('AstrolabePage'))
         menubar.add_cascade(label='Pages', menu=pagemenu)
 
         return menubar
 
-    def test(self):
+    def commence(self):
         if (self.position_entry.get() == ""):
             messagebox.showwarning("Missing Latitude", "Please input a position between 0°N and 90°N")
         elif (int(self.neighbors_entry.get()) > 100):
             neighbors_warning = messagebox.askyesno("Large Number", "The number of nearest neighbours you set may result in excessively large file sizes and little additional benefit over a value of 100. Continue?")
             if neighbors_warning is True:
-                print('continue')
                 Thread(target=self.calculate_atlas).start()
-            else:
-                print('halt')
+            # else:
+            #     print('halt')
         else:
-            start = messagebox.askyesno("Commence?", "Start the calculated with the parameters specified? Calculations may take several minutes to complete.")
+            total_size = (self.end_scale.get() - self.start_scale.get()) / self.step_scale.get() * 150
+            print(total_size)
+            start = messagebox.askyesno("Commence?", f"Start the calculated with the parameters specified? Calculations may take several minutes to complete. \nThe total file size may be {total_size} MB or more. Make sure enough space is available.")
             if start is True:
-                print('continue')
                 Thread(target=self.calculate_atlas).start()
-            else:
-                print('halt')
+            # else:
+            #     print('halt')
 
     def calculate_atlas(self):
-        self.stop_calculations.clear()
+        # self.stop_calculations.clear()
+        self.label_complete.grid_forget()
         self.progress_bar.grid(row=10, pady=10)
         self.progress_bar.start(10)
-        print('calculating Atlas')
-        while True:
-            for i in range(1, 6):
-                time.sleep(1)
-                if self.stop_calculations.is_set():
-                    print('stopping')
-                    self.progress_bar.stop()
-                    return
-            self.Atlas = Atlas(int(self.position_entry.get()), self.start_scale.get(), self.step_scale.get(), self.end_scale.get(), self.mag_scale.get(), int(self.neighbors_entry.get()))
-            self.Atlas.createAtlas()
-            print("Testing:")
-            print(f"Magnitude: {self.Atlas.mag_limit}")
-            print(f"Time Scale: From {self.Atlas.ybp_min} to {self.Atlas.ybp_max} with {self.Atlas.step_size}-year steps")
-            print(f"Position: {self.Atlas.latitude}°N")
-            print(f"Neighbors: {self.Atlas.neighbours}")
-            self.progress_bar.stop()
-            break
+        self.Atlas = Atlas(int(self.position_entry.get()), self.start_scale.get(), self.step_scale.get(), self.end_scale.get(), self.mag_scale.get(), int(self.neighbors_entry.get()))
+        self.Atlas.createAtlas()
+        print("Testing:")
+        print(f"Magnitude: {self.Atlas.mag_limit}")
+        print(f"Time Scale: From {self.Atlas.ybp_min} to {self.Atlas.ybp_max} with {self.Atlas.step_size}-year steps")
+        print(f"Position: {self.Atlas.latitude}°N")
+        print(f"Neighbors: {self.Atlas.neighbours}")
+        self.progress_bar.stop()
+        self.progress_bar.grid_forget()
+        self.label_complete.grid(row=10, pady=10)
 
     def update_start(self, x):
         self.end_scale.config(from_=x)
@@ -308,27 +306,82 @@ class StarMap(tk.Frame):
 
     def validate_neighbors(self, input):
         if input.isnumeric() and int(input) <= 5000 or input == "":
-            print("good")
             return True
         else:
-            print('bad')
             return False
 
 
-class Astrolabe(tk.Frame):
+class AstrolabePage(tk.Frame):
 
     def __init__(self, location, controller):
+
+        self.pattern_set = False
+        self.map_set = False
+
         tk.Frame.__init__(self, location, bg='green')
-        label = tk.Label(self, text='This is the calculation screen')
-        label.grid(row=0)
+        self.label = tk.Label(self, text='This is the calculation screen')
+        self.pattern_label = tk.Label(self, text='Choose a user pattern')
+        self.pattern_button = tk.Button(self, text='Choose', command=self.choose_pattern)
+        self.map_label = tk.Label(self, text='Choose a star map')
+        self.map_button = tk.Button(self, text='Choose', command=self.choose_map)
+
+        self.progress_bar = ttk.Progressbar(self, orient='horizontal', length=100, mode='indeterminate')
+        self.label_complete = tk.Label(self, text='Complete!', fg='green')
+
+        self.start_button = tk.Button(self, text='Start', command=self.commence)
+
+        self.label.grid(row=0)
+        self.pattern_label.grid(row=1, pady=(10, 0))
+        self.pattern_button.grid(row=2)
+        self.map_label.grid(row=3, pady=(10, 0))
+        self.map_button.grid(row=4, pady=(0, 10))
+        self.start_button.grid(row=6)
+
+
+
+        self.grid_columnconfigure(0, weight=1)
+
+
+    def choose_pattern(self):
+        file = filedialog.askopenfilename(filetypes=[('Patterns', '*.ptn')])
+        self.markers = shelve.open(file)['marker_list']
+        self.pattern_label.configure(text=path.basename(file))
+        self.pattern_set = True
+
+    def choose_map(self):
+        file = filedialog.askopenfilename(filetypes=[('Maps', '*.map')])
+        self.map = shelve.open(file)['map']
+        self.map_label.configure(text=path.basename(file))
+        self.map_set = True
+
+    def commence(self):
+        if (self.pattern_set is False):
+            messagebox.showwarning("Missing Pattern", "Please select a user pattern")
+        elif (self.map_set is False):
+            messagebox.showwarning("Missing Map", "Please select a star map")
+        else:
+            Thread(target=self.calculate_astrolabe).start()
+
+    def calculate_astrolabe(self):
+        self.label_complete.grid_forget()
+        self.progress_bar.grid(row=5, pady=10)
+        self.progress_bar.start(10)
+        self.astrolabe = Astrolabe(self.markers, self.map)
+        self.astrolabe.calculate_marker_distances()
+        self.astrolabe.calculate_marker_bearings()
+        self.astrolabe.calculate()
+        self.progress_bar.stop()
+        self.progress_bar.grid_forget()
+        self.label_complete.grid(row=5, pady=10)
+
 
     def menubar(self, root):
         menubar = tk.Menu(root)
         menubar.add_command(label="Astrolabe")
 
         pagemenu = tk.Menu(menubar, tearoff=0)
-        pagemenu.add_command(label="User Map", command=lambda: root.show_frame('UserMap'))
-        pagemenu.add_command(label="StarMap", command=lambda: root.show_frame('StarMap'))
+        pagemenu.add_command(label="User Map", command=lambda: root.show_frame('UserMapPage'))
+        pagemenu.add_command(label="StarMap", command=lambda: root.show_frame('StarMapPage'))
         menubar.add_cascade(label='Pages', menu=pagemenu)
 
         return menubar
