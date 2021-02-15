@@ -28,22 +28,7 @@ class Atlas:
                 self.atlas[f"map_{x}BP"] = Map(x, self)
                 self.atlas[f"map_{x}BP"].createMap()
 
-    # def save(self):
-    #     min = int(self.ybp_min/1000)
-    #     max = int(self.ybp_max/1000)
-    #     path = Path.cwd() / "Atlases"
-    #     file = f"Atlas_{self.latitude}N_{min}k-{max}k.atl"
-    #
-    #     if not os.path.exists(path):
-    #         os.mkdir(path)
-    #     else:
-    #         pass
-    #
-    #     filename = tkinter.filedialog.asksaveasfilename(initialdir=path, initialfile=file, filetypes=[('Save file', '*.atl')])
-    #
-    #     s = shelve.open(filename)
-    #     s["atlas"] = self
-    #     s.close()
+        self.save()
 
     def save(self):
         min = int(self.ybp_min/1000)
