@@ -60,24 +60,29 @@ class App(tk.Tk):
 class StartPage(tk.Frame):
 
     def __init__(self, location, controller):
-        tk.Frame.__init__(self, location, bg='blue')
-        title = tk.Label(self, text='This is the start page')
-        title.grid(row=0, pady=20)
+        self.c_background = '#02385C'
+        self.c_label = "#02385C"
+        self.c_button = "#024977"
+        tk.Frame.__init__(self, location, bg=self.c_background)
 
-        usermap_lable = tk.Label(self, text='Create a pattern map from an image')
-        usermap_lable.grid(row=1, pady=5)
-        usermap_button = tk.Button(self, text='User Map', command=lambda: controller.show_frame('UserMapPage'))
+        # title = tk.Label(self, text='Start page', bg=self.c_label)
+
+        usermap_lable = tk.Label(self, text='Create a pattern map from an image', bg=self.c_label)
+        usermap_button = tk.Button(self, text='User Map', command=lambda: controller.show_frame('UserMapPage'), bg=self.c_button)
+
+        starmap_lable = tk.Label(self, text='Calculate a star map for a given position and time', bg=self.c_label)
+        starmap_button = tk.Button(self, text='Star Map', command=lambda: controller.show_frame('StarMapPage'), bg=self.c_button)
+
+        astrolabe_lable = tk.Label(self, text='Search for a specific pattern in the stars', bg=self.c_label)
+        astrolabe_button = tk.Button(self, text='Astrolabe', command=lambda: controller.show_frame('AstrolabePage'), bg=self.c_button)
+
+        # title.grid(row=0, pady=20)
+        usermap_lable.grid(row=1, pady=(20, 0))
         usermap_button.grid(row=2, pady=(0, 20))
-
-        usermap_lable = tk.Label(self, text='Calculate a star map for a given position and time')
-        usermap_lable.grid(row=3, pady=5)
-        usermap_button = tk.Button(self, text='Star Map', command=lambda: controller.show_frame('StarMapPage'))
-        usermap_button.grid(row=4, pady=(0, 20))
-
-        usermap_lable = tk.Label(self, text='Search for a specific pattern in the stars')
-        usermap_lable.grid(row=5, pady=5)
-        usermap_button = tk.Button(self, text='Astrolabe', command=lambda: controller.show_frame('AstrolabePage'))
-        usermap_button.grid(row=6, pady=(0, 20))
+        starmap_lable.grid(row=3, pady=5)
+        starmap_button.grid(row=4, pady=(0, 20))
+        astrolabe_lable.grid(row=5, pady=5)
+        astrolabe_button.grid(row=6, pady=(0, 20))
 
         self.grid_columnconfigure(0, weight=1)
         # self.grid_rowconfigure(0, weight=1)
@@ -100,26 +105,44 @@ class UserMapPage(tk.Frame):
     def __init__(self, location, controller):
         self.markers = mk.Markers()
 
-        tk.Frame.__init__(self, location, bg='yellow')
-        label = tk.Label(self, text='This is the User Map creation screen')
-        label.grid(row=0)
+        self.c_background = '#E1DEC6'
+        self.c_label = "#E1DEC6"
+        self.c_button = "#D7D2B2"
+        self.c_text = "black"
+
+        tk.Frame.__init__(self, location, bg=self.c_background)
+        # label = tk.Label(self, text='This is the User Map creation screen')
+        # label.grid(row=0)
+
+        self.import_button = tk.Button(self, text='Import Image', command=lambda: self.import_image(), bg=self.c_button, fg=self.c_text)
+        self.save_button = tk.Button(self, text='Save Pattern', command=lambda: self.save_pattern(), bg=self.c_button, fg=self.c_text)
+        self.load_button = tk.Button(self, text='Load Pattern', command=lambda: self.load_pattern(), bg=self.c_button, fg=self.c_text)
+        self.clear_button = tk.Button(self, text='Clear Canvas', command=lambda: self.markers.clear_all(self.canvas), bg=self.c_button, fg=self.c_text)
 
         self.canvas = tk.Canvas(self, width=900, height=900, cursor='crosshair', bd=5, relief='groove')
         self.canvas.bind('<Button-1>', lambda event: self.markers.add_marker(event.x, event.y, self.canvas, "white"))
         self.canvas.bind('<Button-3>', lambda event: self.markers.delete_marker(event, self.canvas))
-        self.canvas.grid(row=1, sticky='nsew')
+
+        self.import_button.grid(row=0, column=0)
+        self.save_button.grid(row=0, column=1)
+        self.load_button.grid(row=0, column=2)
+        self.clear_button.grid(row=0, column=3)
+        self.canvas.grid(row=1, columnspan=4, sticky='nsew')
 
         self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_columnconfigure(2, weight=1)
+        self.grid_columnconfigure(3, weight=1)
         self.grid_rowconfigure(1, weight=1)
 
     def menubar(self, root):
         menubar = tk.Menu(root)
 
         current_menu = tk.Menu(menubar, tearoff=0)
-        current_menu.add_command(label='Import Image', command=lambda: self.import_image())
-        current_menu.add_command(label='Save Pattern', command=lambda: self.save_pattern())
-        current_menu.add_command(label='Load Pattern', command=lambda: self.load_pattern())
-        current_menu.add_command(label='Clear Canvas', command=lambda: self.markers.clear_all(self.canvas))
+        # current_menu.add_command(label='Import Image', command=lambda: self.import_image())
+        # current_menu.add_command(label='Save Pattern', command=lambda: self.save_pattern())
+        # current_menu.add_command(label='Load Pattern', command=lambda: self.load_pattern())
+        # current_menu.add_command(label='Clear Canvas', command=lambda: self.markers.clear_all(self.canvas))
         menubar.add_cascade(label='User Map', menu=current_menu)
 
         pagemenu = tk.Menu(menubar, tearoff=0)
@@ -189,46 +212,54 @@ class UserMapPage(tk.Frame):
 class StarMapPage(tk.Frame):
 
     def __init__(self, location, controller):
+
+        self.c_background = '#04003F'
+        self.c_label = "#04003F"
+        self.c_button = "#06005D"
+        self.c_text = "white"
+
         self.stop_calculations = Event()
-        tk.Frame.__init__(self, location, bg='black')
-        label = tk.Label(self, text='This is the Star Map creation screen')
-        label.grid(row=0)
+        tk.Frame.__init__(self, location, bg=self.c_background)
+        # label = tk.Label(self, text='This is the Star Map creation screen')
+        # label.grid(row=0)
 
         self.mag_scale = tk.Scale(self, label='Magnitude', from_=1.0, to=6.5, resolution=0.5, orient='horizontal')
         self.mag_scale.set(4.5)
         self.mag_scale.grid(row=1, pady=20)
 
-        self.timescale = tk.Label(self, text='Timescale')
+        self.timescale = tk.Label(self, text='Timescale', bg=self.c_label, fg=self.c_text)
         self.start_scale = tk.Scale(self, label='Initial Year', from_=0, to=60000, resolution=1000, orient='horizontal', command=self.update_start)
         self.end_scale = tk.Scale(self, label='Final Year', from_=0, to=60000, resolution=1000, orient='horizontal', command=self.update_end)
         self.end_scale.set(60000)
         self.step_scale = tk.Scale(self, label='Step Size', from_=500, to=60000, resolution=500, orient='horizontal')
-        self.timescale.grid(row=2)
-        self.start_scale.grid(row=3)
-        self.end_scale.grid(row=4)
-        self.step_scale.grid(row=5)
 
-        self.position = tk.Label(self, text='Position in °N (int)')
+        self.position = tk.Label(self, text='Position in °N (int)', bg=self.c_label, fg=self.c_text)
         vpos = (self.register(self.validate_latitude), "%P")
         self.position_entry = tk.Entry(self, validate="key", validatecommand=vpos)
-        self.position.grid(row=6, pady=(20, 0))
-        self.position_entry.grid(row=7)
 
-        self.neighbors = tk.Label(self, text='Number of nearest neighbours for each star to check')
+        self.neighbors = tk.Label(self, text='Number of nearest neighbours for each star to check', bg=self.c_label, fg=self.c_text)
         vnei = (self.register(self.validate_neighbors), "%P")
         self.ngh = tk.StringVar()
         self.ngh.set(100)
         self.neighbors_entry = tk.Entry(self, validate="key", validatecommand=vnei, textvariable=self.ngh)
-        self.neighbors.grid(row=8, pady=(20, 0))
-        self.neighbors_entry.grid(row=9)
 
         self.progress_bar = ttk.Progressbar(self, orient='horizontal', length=100, mode='indeterminate')
         self.label_complete = tk.Label(self, text='Complete!', fg='green')
 
-        button_test = tk.Button(self, text="Start", command=self.commence)
-        button_test.grid(row=11, pady=5)
+        button_test = tk.Button(self, text="Start", command=self.commence, bg=self.c_button, fg=self.c_text)
         # button_stop = tk.Button(self, text="Stop", command=self.stop_calculations.set)
         # button_stop.grid(row=12, pady=5)
+
+        self.timescale.grid(row=2)
+        self.start_scale.grid(row=3)
+        self.end_scale.grid(row=4)
+        self.step_scale.grid(row=5)
+        self.position.grid(row=6, pady=(20, 0))
+        self.position_entry.grid(row=7)
+        self.neighbors.grid(row=8, pady=(20, 0))
+        self.neighbors_entry.grid(row=9)
+        button_test.grid(row=11, pady=5)
+
 
         self.grid_columnconfigure(0, weight=1)
         # self.grid_columnconfigure(1, weight=1)
@@ -258,7 +289,7 @@ class StarMapPage(tk.Frame):
             # else:
             #     print('halt')
         else:
-            total_size = (self.end_scale.get() - self.start_scale.get()) / self.step_scale.get() * 150
+            total_size = int((self.end_scale.get() - self.start_scale.get()) / (self.step_scale.get() + 1) * 150)
             print(total_size)
             start = messagebox.askyesno("Commence?", f"Start the calculated with the parameters specified? Calculations may take several minutes to complete. \nThe total file size may be {total_size} MB or more. Make sure enough space is available.")
             if start is True:
@@ -313,16 +344,21 @@ class AstrolabePage(tk.Frame):
 
     def __init__(self, location, controller):
 
+        self.c_background = '#867245'
+        self.c_label = "#867245"
+        self.c_button = "#7D6B40"
+        self.c_text = "white"
+
         self.pattern_set = False
         self.map_set = False
 
-        tk.Frame.__init__(self, location, bg='green')
-        self.label = tk.Label(self, text='This is the calculation screen')
-        self.pattern_label = tk.Label(self, text='Choose a user pattern')
-        self.pattern_button = tk.Button(self, text='Choose', command=self.choose_pattern)
-        self.map_label = tk.Label(self, text='Choose a star map')
-        self.map_button = tk.Button(self, text='Choose', command=self.choose_map)
-        self.precision_label = tk.Label(self, text="Adjust the search precision.\n (Changing these values is not recommended)")
+        tk.Frame.__init__(self, location, bg=self.c_background)
+        # self.label = tk.Label(self, text='This is the calculation screen')
+        self.pattern_label = tk.Label(self, text='Choose a user pattern', bg=self.c_label, fg=self.c_text)
+        self.pattern_button = tk.Button(self, text='Choose', command=self.choose_pattern, bg=self.c_button, fg=self.c_text)
+        self.map_label = tk.Label(self, text='Choose a star map', bg=self.c_label, fg=self.c_text)
+        self.map_button = tk.Button(self, text='Choose', command=self.choose_map, bg=self.c_button, fg=self.c_text)
+        self.precision_label = tk.Label(self, text="Adjust the search precision.\n (Changing these values is not recommended)", bg=self.c_label, fg=self.c_text)
         self.dist_dev = tk.Entry(self)
         self.dist_dev.insert(0, "3.9")
         self.ang_dev = tk.Entry(self)
@@ -335,9 +371,9 @@ class AstrolabePage(tk.Frame):
         self.progress_bar = ttk.Progressbar(self, orient='horizontal', length=100, mode='indeterminate')
         self.label_complete = tk.Label(self, text='Complete!', fg='green')
 
-        self.start_button = tk.Button(self, text='Start', command=self.commence)
+        self.start_button = tk.Button(self, text='Start', command=self.commence, bg=self.c_button, fg=self.c_text)
 
-        self.label.grid(row=0, columnspan=2)
+        # self.label.grid(row=0, columnspan=2)
         self.pattern_label.grid(row=1, columnspan=2, pady=(10, 0))
         self.pattern_button.grid(row=2, columnspan=2)
         self.map_label.grid(row=3, columnspan=2, pady=(10, 0))
