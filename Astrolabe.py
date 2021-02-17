@@ -4,16 +4,21 @@ from datetime import date
 
 class Astrolabe:
 
-    def __init__(self, user_map, starmap):
+    def __init__(self, user_map, starmap, dist_dev, ang_dev, debug_bool):
         self.matches = {}
         self.norma_markers = {}
-        # self.debug = open("debug.txt", "w+")
         self.star_distances = starmap.distances
         self.star_angles = starmap.angles
         self.normd_star = starmap.norm_dist
         self.norma_star = starmap.norm_ang
         self.markers = user_map
         self.current_date = date.today().strftime("%Y-%m-%d")
+        self.dist_dev = dist_dev
+        self.ang_dev = ang_dev
+        self.debug_bool = debug_bool
+
+        if self.debug_bool is True:
+            self.debug = open("debug.txt", "w+")
 
     def calculate_marker_distances(self):
         marker_distances = {}
@@ -95,9 +100,10 @@ class Astrolabe:
                         diff_d = compd_star-compd_markers
                         diff_a = compa_star-compa_markers
 
-                        if abs(diff_d) < 0.40 and abs(diff_a) < 3.9:
+                        if abs(diff_d) < self.dist_dev and abs(diff_a) < self.ang_dev:
                             if self.matches[mid]['Matches'] == 0:
-                                # self.debug.write(f'Master: {a}, Normalizer: {n}, Target: {t}, Difference distance: {diff_d}, Difference angle: {diff_a}, Marker: {i}\r\n')
+                                if self.debug_bool is True:
+                                    self.debug.write(f'Master: {a}, Normalizer: {n}, Target: {t}, Difference distance: {diff_d}, Difference angle: {diff_a}, Marker: {i}\r\n')
                                 self.matches[mid]['Matches'] += 1
                                 self.matches[mid]['Diff_d'] += abs(diff_d)
                                 self.matches[mid]['Diff_a'] += abs(diff_a)
@@ -105,7 +111,8 @@ class Astrolabe:
                                 self.matches[mid][f'Marker {list(self.normd_markers.keys())[0]}'] = n
                                 self.matches[mid][f'Marker {i}'] = t
                             elif f'Marker {i}' not in list(self.matches[mid].keys()):
-                                # self.debug.write(f'Master: {a}, Normalizer: {n}, Target: {t}, Difference distance: {diff_d}, Difference angle: {diff_a}, Marker: {i}\r\n')
+                                if self.debug_bool is True:
+                                    self.debug.write(f'Master: {a}, Normalizer: {n}, Target: {t}, Difference distance: {diff_d}, Difference angle: {diff_a}, Marker: {i}\r\n')
                                 self.matches[mid]['Matches'] += 1
                                 self.matches[mid]['Diff_d'] += abs(diff_d)
                                 self.matches[mid]['Diff_a'] += abs(diff_a)
@@ -133,15 +140,16 @@ class Astrolabe:
         self.write("----------Sorted by distance-deviation----------")
         for i in self.sort_dist:
             print(self.sort_dist[i])
+            self.write(str(self.sort_dist[i]))
 
         self.write("----------Sorted by angle-deviation----------")
         for i in self.sort_ang:
-            self.write(self.sort_ang[i])
+            self.write(str(self.sort_ang[i]))
 
         self.write("----------In both----------")
         for i in self.sort_dist:
             if i in self.sort_ang:
-                self.write(self.sort_dist[i])
+                self.write(str(self.sort_dist[i]))
 
 
         # print("Sorted by distance-deviation--------------")

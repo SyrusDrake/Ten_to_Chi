@@ -12,9 +12,7 @@ from PIL import ImageTk, Image
 import shelve
 from Atlas import *
 from Astrolabe import *
-import time
 from threading import Thread, Event
-import shelve
 from os import path
 
 
@@ -81,7 +79,6 @@ class StartPage(tk.Frame):
         usermap_button = tk.Button(self, text='Astrolabe', command=lambda: controller.show_frame('AstrolabePage'))
         usermap_button.grid(row=6, pady=(0, 20))
 
-
         self.grid_columnconfigure(0, weight=1)
         # self.grid_rowconfigure(0, weight=1)
 
@@ -126,6 +123,7 @@ class UserMapPage(tk.Frame):
         menubar.add_cascade(label='User Map', menu=current_menu)
 
         pagemenu = tk.Menu(menubar, tearoff=0)
+        pagemenu.add_command(label="Start Page", command=lambda: root.show_frame('StartPage'))
         pagemenu.add_command(label="Star Map", command=lambda: root.show_frame('StarMapPage'))
         pagemenu.add_command(label="Astrolabe", command=lambda: root.show_frame('AstrolabePage'))
         menubar.add_cascade(label='Pages', menu=pagemenu)
@@ -143,14 +141,14 @@ class UserMapPage(tk.Frame):
         y = self.img.size[1]
 
         if x > max_size or y > max_size:
-            ratio = x/y
+            ratio = x / y
 
             if x > y:
                 x = int(max_size)
-                y = int(max_size/ratio)
+                y = int(max_size / ratio)
             if y > x:
                 y = int(max_size)
-                x = int(max_size*ratio)
+                x = int(max_size * ratio)
             if x == y:
                 x = y = 1024
 
@@ -233,17 +231,17 @@ class StarMapPage(tk.Frame):
         # button_stop.grid(row=12, pady=5)
 
         self.grid_columnconfigure(0, weight=1)
-        self.grid_columnconfigure(1, weight=1)
+        # self.grid_columnconfigure(1, weight=1)
         # self.grid_columnconfigure(2, weight=1)
         # self.grid_rowconfigure(0, weight=1)
         # self.grid_rowconfigure(1, weight=1)
-
 
     def menubar(self, root):
         menubar = tk.Menu(root)
         menubar.add_command(label="Star Map")
 
         pagemenu = tk.Menu(menubar, tearoff=0)
+        pagemenu.add_command(label="Start Page", command=lambda: root.show_frame('StartPage'))
         pagemenu.add_command(label="User Map", command=lambda: root.show_frame('UserMapPage'))
         pagemenu.add_command(label="Astrolabe", command=lambda: root.show_frame('AstrolabePage'))
         menubar.add_cascade(label='Pages', menu=pagemenu)
@@ -324,23 +322,34 @@ class AstrolabePage(tk.Frame):
         self.pattern_button = tk.Button(self, text='Choose', command=self.choose_pattern)
         self.map_label = tk.Label(self, text='Choose a star map')
         self.map_button = tk.Button(self, text='Choose', command=self.choose_map)
+        self.precision_label = tk.Label(self, text="Adjust the search precision.\n (Changing these values is not recommended)")
+        self.dist_dev = tk.Entry(self)
+        self.dist_dev.insert(0, "3.9")
+        self.ang_dev = tk.Entry(self)
+        self.ang_dev.insert(0, "0.4")
+
+        self.checkbool = tk.BooleanVar()
+        self.checkbool.set(False)
+        self.debug_check = tk.Checkbutton(self, text='Create debug file?', variable=self.checkbool)
 
         self.progress_bar = ttk.Progressbar(self, orient='horizontal', length=100, mode='indeterminate')
         self.label_complete = tk.Label(self, text='Complete!', fg='green')
 
         self.start_button = tk.Button(self, text='Start', command=self.commence)
 
-        self.label.grid(row=0)
-        self.pattern_label.grid(row=1, pady=(10, 0))
-        self.pattern_button.grid(row=2)
-        self.map_label.grid(row=3, pady=(10, 0))
-        self.map_button.grid(row=4, pady=(0, 10))
-        self.start_button.grid(row=6)
-
-
+        self.label.grid(row=0, columnspan=2)
+        self.pattern_label.grid(row=1, columnspan=2, pady=(10, 0))
+        self.pattern_button.grid(row=2, columnspan=2)
+        self.map_label.grid(row=3, columnspan=2, pady=(10, 0))
+        self.map_button.grid(row=4, columnspan=2, pady=(0, 10))
+        self.precision_label.grid(row=5, columnspan=2)
+        self.dist_dev.grid(row=6, column=0, sticky="E")
+        self.ang_dev.grid(row=6, column=1, sticky="W")
+        self.start_button.grid(row=8, columnspan=2, pady=10)
+        self.debug_check.grid(row=9, columnspan=2, pady=10)
 
         self.grid_columnconfigure(0, weight=1)
-
+        self.grid_columnconfigure(1, weight=1)
 
     def choose_pattern(self):
         file = filedialog.askopenfilename(filetypes=[('Patterns', '*.ptn')])
@@ -364,22 +373,22 @@ class AstrolabePage(tk.Frame):
 
     def calculate_astrolabe(self):
         self.label_complete.grid_forget()
-        self.progress_bar.grid(row=5, pady=10)
+        self.progress_bar.grid(row=7, columnspan=2, pady=10)
         self.progress_bar.start(10)
-        self.astrolabe = Astrolabe(self.markers, self.map)
+        self.astrolabe = Astrolabe(self.markers, self.map, float(self.dist_dev.get()), float(self.ang_dev.get()), self.checkbool.get())
         self.astrolabe.calculate_marker_distances()
         self.astrolabe.calculate_marker_bearings()
         self.astrolabe.calculate()
         self.progress_bar.stop()
         self.progress_bar.grid_forget()
-        self.label_complete.grid(row=5, pady=10)
-
+        self.label_complete.grid(row=7, columnspan=2, pady=10)
 
     def menubar(self, root):
         menubar = tk.Menu(root)
         menubar.add_command(label="Astrolabe")
 
         pagemenu = tk.Menu(menubar, tearoff=0)
+        pagemenu.add_command(label="Start Page", command=lambda: root.show_frame('StartPage'))
         pagemenu.add_command(label="User Map", command=lambda: root.show_frame('UserMapPage'))
         pagemenu.add_command(label="StarMap", command=lambda: root.show_frame('StarMapPage'))
         menubar.add_cascade(label='Pages', menu=pagemenu)
@@ -391,5 +400,5 @@ app = App()
 app.title("Stoney Skies")
 icon = tk.PhotoImage(file='icon.gif')
 app.tk.call('wm', 'iconphoto', app._w, icon)
-app.geometry('1000x1000+1400+400')
+app.geometry('750x500+1400+400')
 app.mainloop()
