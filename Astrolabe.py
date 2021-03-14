@@ -2,6 +2,7 @@ import math as m
 from os import path
 from datetime import date
 
+
 class Astrolabe:
 
     def __init__(self, user_map, starmap, dist_dev, ang_dev, debug_bool):
@@ -28,7 +29,7 @@ class Astrolabe:
             x2 = self.markers[point]['x']
             y2 = self.markers[point]['y']
             ID = point
-            dis = m.sqrt((x2-x1)**2+(y2-y1)**2)  # calculates the distances
+            dis = m.sqrt((x2 - x1)**2 + (y2 - y1)**2)  # calculates the distances
             if dis == 0:
                 pass
             else:
@@ -38,17 +39,18 @@ class Astrolabe:
         self.normd_markers = {}
         ref_values = list(marker_distances.values())[0]  # Takes the first entry in the list of values
         for i in marker_distances:  # Iterates through the entire list and divides all values by the chosen reference values.
-            self.normd_markers[i] = (marker_distances[i]/ref_values)
+            self.normd_markers[i] = (marker_distances[i] / ref_values)
 
     def calculate_marker_bearings(self):
+        # Calculates bearings like they would be calculated on a map
         bearings = {}
         x1 = self.markers['1']['x']
         y1 = self.markers['1']['y']
 
-        for i in range(2, len(self.markers)+1):
+        for i in range(2, len(self.markers) + 1):
             x2 = self.markers[str(i)]['x']
             y2 = self.markers[str(i)]['y']
-            ang = 180-m.degrees(m.atan2(x2-x1, y2-y1))
+            ang = 180 - m.degrees(m.atan2(x2 - x1, y2 - y1))
             bearings[str(i)] = ang
 
         temp_dict = {}
@@ -61,7 +63,7 @@ class Astrolabe:
             b2 = bearings[i]
             ang = b1 - b2
             if ang > 180:
-                ang = ang-360
+                ang = ang - 360
             elif ang < -180:
                 ang += 360
             temp_dict[i] = ang
@@ -72,7 +74,7 @@ class Astrolabe:
 
     def make_file(self, new_file, current):
         if path.exists(new_file):
-            self.make_file(f"{self.current_date}_{current+1}.txt", current+1)
+            self.make_file(f"{self.current_date}_{current+1}.txt", current + 1)
         else:
             self.save_file = open(new_file, "w")
             self.filename = new_file
@@ -97,9 +99,10 @@ class Astrolabe:
                     for i in list(self.normd_markers.keys())[1:]:
                         compd_markers = self.normd_markers[i]
                         compa_markers = self.norma_markers[i]
-                        diff_d = compd_star-compd_markers
-                        diff_a = compa_star-compa_markers
+                        diff_d = compd_star - compd_markers
+                        diff_a = compa_star - compa_markers
 
+                        # A "match" is only recorded if the deviations of RELATIVE angles and distances fall within certain limits
                         if abs(diff_d) < self.dist_dev and abs(diff_a) < self.ang_dev:
                             if self.matches[mid]['Matches'] == 0:
                                 if self.debug_bool is True:
@@ -119,7 +122,7 @@ class Astrolabe:
                                 self.matches[mid][f'Marker {i}'] = t
 
         for k, v in list(self.matches.items()):
-            if v['Matches'] < len(list(self.normd_markers))-1:
+            if v['Matches'] < len(list(self.normd_markers)) - 1:
                 del self.matches[k]
 
         self.sort_dist = {k: v for k, v in sorted(self.matches.items(), key=lambda item: item[1]['Diff_d'])}
@@ -150,17 +153,3 @@ class Astrolabe:
         for i in self.sort_dist:
             if i in self.sort_ang:
                 self.write(str(self.sort_dist[i]))
-
-
-        # print("Sorted by distance-deviation--------------")
-        # for i in self.sort_dist:
-        #     print(self.sort_dist[i])
-        #
-        # print("Sorted by angle-deviation--------------")
-        # for i in self.sort_ang:
-        #     print(self.sort_ang[i])
-        #
-        # print("In both--------------")
-        # for i in self.sort_dist:
-        #     if i in self.sort_ang:
-        #         print(self.sort_dist[i])

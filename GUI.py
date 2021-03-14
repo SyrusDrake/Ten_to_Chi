@@ -1,6 +1,6 @@
 # Florian Fruehwirth
 # Main GUI for the app with different pages for different functions
-# Last change: 04.02.2021
+# Last change: 07.03.2021
 # Frame-switching based on:
 # https://www.geeksforgeeks.org/tkinter-application-to-switch-between-different-page-frames/
 # Menubar-switching: https://stackoverflow.com/questions/37621071/tkinter-add-menu-bar-in-frames
@@ -12,7 +12,7 @@ from PIL import ImageTk, Image
 import shelve
 from Atlas import *
 from Astrolabe import *
-from threading import Thread, Event
+from threading import Thread
 from os import path
 
 
@@ -87,6 +87,7 @@ class StartPage(tk.Frame):
         self.grid_columnconfigure(0, weight=1)
         # self.grid_rowconfigure(0, weight=1)
 
+    # Defines a menubar class to add different menu bars to different pages. Is repeated accordingly on other pages.
     def menubar(self, root):
         menubar = tk.Menu(root)
         menubar.add_command(label="Start Page")
@@ -109,16 +110,14 @@ class UserMapPage(tk.Frame):
         self.c_label = "#E1DEC6"
         self.c_button = "#D7D2B2"
         self.c_text = "black"
-
         tk.Frame.__init__(self, location, bg=self.c_background)
-        # label = tk.Label(self, text='This is the User Map creation screen')
-        # label.grid(row=0)
 
         self.import_button = tk.Button(self, text='Import Image', command=lambda: self.import_image(), bg=self.c_button, fg=self.c_text)
         self.save_button = tk.Button(self, text='Save Pattern', command=lambda: self.save_pattern(), bg=self.c_button, fg=self.c_text)
         self.load_button = tk.Button(self, text='Load Pattern', command=lambda: self.load_pattern(), bg=self.c_button, fg=self.c_text)
         self.clear_button = tk.Button(self, text='Clear Canvas', command=lambda: self.markers.clear_all(self.canvas), bg=self.c_button, fg=self.c_text)
 
+        # The canvas on which to set markers
         self.canvas = tk.Canvas(self, width=900, height=900, cursor='crosshair', bd=5, relief='groove')
         self.canvas.bind('<Button-1>', lambda event: self.markers.add_marker(event.x, event.y, self.canvas, "white"))
         self.canvas.bind('<Button-3>', lambda event: self.markers.delete_marker(event, self.canvas))
@@ -139,6 +138,7 @@ class UserMapPage(tk.Frame):
         menubar = tk.Menu(root)
 
         current_menu = tk.Menu(menubar, tearoff=0)
+        # Canvas commands used to be repeated in the menubar. Kept as comment, just in case.
         # current_menu.add_command(label='Import Image', command=lambda: self.import_image())
         # current_menu.add_command(label='Save Pattern', command=lambda: self.save_pattern())
         # current_menu.add_command(label='Load Pattern', command=lambda: self.load_pattern())
@@ -163,6 +163,7 @@ class UserMapPage(tk.Frame):
         x = self.img.size[0]
         y = self.img.size[1]
 
+        # Resizes the image to a useful size
         if x > max_size or y > max_size:
             ratio = x / y
 
@@ -181,6 +182,7 @@ class UserMapPage(tk.Frame):
         self.canvas.create_image(10, 10, anchor='nw', image=self.img)
 
     def save_pattern(self):
+        # Saves the pattern and the corresponding image.
         print(self.markers.marker_list)
         save_list = {}
         filename = filedialog.asksaveasfilename(filetypes=[('Pattern', '*.ptn')])
@@ -191,20 +193,21 @@ class UserMapPage(tk.Frame):
             save_list[ID]['x'] = self.markers.marker_list[i]['x']
             save_list[ID]['y'] = self.markers.marker_list[i]['y']
             x += 1
-        print(f'Saved list: {save_list}')
+        # print(f'Saved list: {save_list}')
         save_file = shelve.open(filename, "n")
         save_file['marker_list'] = save_list
         if self.img_save is not None:
-            print("image")
             save_file['image'] = self.img_save
         save_file.close()
 
     def load_pattern(self):
+        # Loading a pattern and the corresponding image.
         loadfile = filedialog.askopenfilename(filetypes=[('Patterns', '*.ptn')])
         self.img = shelve.open(loadfile)['image']
         self.img = ImageTk.PhotoImage(self.img)
         self.canvas.create_image(10, 10, anchor='nw', image=self.img)
         marker_list = shelve.open(loadfile)['marker_list']
+        # Loops through the list of markers and "manually" sets them, just like the user would
         for m in marker_list:
             self.markers.add_marker(marker_list[m]['x'], marker_list[m]['y'], self.canvas, 'white')
 
@@ -218,10 +221,8 @@ class StarMapPage(tk.Frame):
         self.c_button = "#06005D"
         self.c_text = "white"
 
-        self.stop_calculations = Event()
+        # self.stop_calculations = Event()
         tk.Frame.__init__(self, location, bg=self.c_background)
-        # label = tk.Label(self, text='This is the Star Map creation screen')
-        # label.grid(row=0)
 
         self.mag_scale = tk.Scale(self, label='Magnitude', from_=1.0, to=6.5, resolution=0.5, orient='horizontal')
         self.mag_scale.set(4.5)
@@ -260,7 +261,6 @@ class StarMapPage(tk.Frame):
         self.neighbors_entry.grid(row=9)
         button_test.grid(row=11, pady=5)
 
-
         self.grid_columnconfigure(0, weight=1)
         # self.grid_columnconfigure(1, weight=1)
         # self.grid_columnconfigure(2, weight=1)
@@ -280,22 +280,21 @@ class StarMapPage(tk.Frame):
         return menubar
 
     def commence(self):
+        # A separate "commence" function is needed to check conditions and intialize threading
         if (self.position_entry.get() == ""):
             messagebox.showwarning("Missing Latitude", "Please input a position between 0°N and 90°N")
         elif (int(self.neighbors_entry.get()) > 100):
             neighbors_warning = messagebox.askyesno("Large Number", "The number of nearest neighbours you set may result in excessively large file sizes and little additional benefit over a value of 100. Continue?")
             if neighbors_warning is True:
                 Thread(target=self.calculate_atlas).start()
-            # else:
-            #     print('halt')
+
         else:
-            total_size = int((self.end_scale.get() - self.start_scale.get()) / (self.step_scale.get() + 1) * 150)
-            print(total_size)
+            total_size = int((self.end_scale.get() - self.start_scale.get()) / (self.step_scale.get() + 1) * 150 + 150)
+            # print(total_size)
             start = messagebox.askyesno("Commence?", f"Start the calculated with the parameters specified? Calculations may take several minutes to complete. \nThe total file size may be {total_size} MB or more. Make sure enough space is available.")
             if start is True:
+                # Threading is needed to have the progress bar work
                 Thread(target=self.calculate_atlas).start()
-            # else:
-            #     print('halt')
 
     def calculate_atlas(self):
         # self.stop_calculations.clear()
@@ -304,15 +303,16 @@ class StarMapPage(tk.Frame):
         self.progress_bar.start(10)
         self.Atlas = Atlas(int(self.position_entry.get()), self.start_scale.get(), self.step_scale.get(), self.end_scale.get(), self.mag_scale.get(), int(self.neighbors_entry.get()))
         self.Atlas.createAtlas()
-        print("Testing:")
-        print(f"Magnitude: {self.Atlas.mag_limit}")
-        print(f"Time Scale: From {self.Atlas.ybp_min} to {self.Atlas.ybp_max} with {self.Atlas.step_size}-year steps")
-        print(f"Position: {self.Atlas.latitude}°N")
-        print(f"Neighbors: {self.Atlas.neighbours}")
+        # print("Testing:")
+        # print(f"Magnitude: {self.Atlas.mag_limit}")
+        # print(f"Time Scale: From {self.Atlas.ybp_min} to {self.Atlas.ybp_max} with {self.Atlas.step_size}-year steps")
+        # print(f"Position: {self.Atlas.latitude}°N")
+        # print(f"Neighbors: {self.Atlas.neighbours}")
         self.progress_bar.stop()
         self.progress_bar.grid_forget()
         self.label_complete.grid(row=10, pady=10)
 
+    # These two update functions are needed to adjust the BP-sliders in real time and make sure only logical conditions can be set
     def update_start(self, x):
         self.end_scale.config(from_=x)
         year_diff = self.end_scale.get() - int(x)
@@ -358,7 +358,7 @@ class AstrolabePage(tk.Frame):
         self.pattern_button = tk.Button(self, text='Choose', command=self.choose_pattern, bg=self.c_button, fg=self.c_text)
         self.map_label = tk.Label(self, text='Choose a star map', bg=self.c_label, fg=self.c_text)
         self.map_button = tk.Button(self, text='Choose', command=self.choose_map, bg=self.c_button, fg=self.c_text)
-        self.precision_label = tk.Label(self, text="Adjust the search precision.\n (Changing these values is not recommended)", bg=self.c_label, fg=self.c_text)
+        self.precision_label = tk.Label(self, text="Adjust the search precision.", bg=self.c_label, fg=self.c_text)
         self.dist_dev = tk.Entry(self)
         self.dist_dev.insert(0, "3.9")
         self.ang_dev = tk.Entry(self)
@@ -400,6 +400,7 @@ class AstrolabePage(tk.Frame):
         self.map_set = True
 
     def commence(self):
+        # A commence function is needed to check conditions and initiate threading
         if (self.pattern_set is False):
             messagebox.showwarning("Missing Pattern", "Please select a user pattern")
         elif (self.map_set is False):
@@ -433,7 +434,7 @@ class AstrolabePage(tk.Frame):
 
 
 app = App()
-app.title("Stoney Skies")
+app.title("Ten to Chi")
 icon = tk.PhotoImage(file='icon.gif')
 app.tk.call('wm', 'iconphoto', app._w, icon)
 app.geometry('750x500+1400+400')

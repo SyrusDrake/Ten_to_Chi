@@ -20,6 +20,7 @@ class Atlas:
 
     def createAtlas(self):
         if (self.step_size == 0):
+            # Only creates one map if only one date is selected
             self.atlas[f"map_{0}BP"] = Map(0, self)
             self.atlas[f"map_{0}BP"].createMap()
 
@@ -31,8 +32,8 @@ class Atlas:
         self.save()
 
     def save(self):
-        min = int(self.ybp_min/1000)
-        max = int(self.ybp_max/1000)
+        min = int(self.ybp_min / 1000)
+        max = int(self.ybp_max / 1000)
         default = Path.cwd() / "Atlases" / f"Atlas_{self.latitude}N_{min}k-{max}k"
 
         if not os.path.exists(default):
@@ -62,6 +63,7 @@ class Map(Atlas):
         self.norm_ang = {}
 
     def calculate_new_coordinates(self, ra, de, pm_ra, pm_de, ybp):
+        # Calculates new positions of stars from their proper motions
         if (pm_ra * ybp >= 360):
             new_ra = ra + ((pm_ra * ybp) % 360)
         else:
@@ -112,8 +114,8 @@ class Map(Atlas):
         return ang
 
     def createMap(self):
-        # self.hip = open('hip_main.dat')  # The HIP catalogue save_data
-        self.hip = open('hip_test.dat')  # The HIP catalogue save_data
+        self.hip = open('hip_main.dat')  # The HIP catalogue
+        # self.hip = open('hip_test.dat')
         lines = self.hip.readlines()  # Puts every line of the catalog in an list item
 
         for line in lines:
@@ -171,7 +173,7 @@ class Map(Atlas):
                 self.norm_dist[i][d] = {}
                 divisor = self.distances[i][d]
                 for x in self.distances[i]:
-                    normalized = self.distances[i][x]/divisor
+                    normalized = self.distances[i][x] / divisor
                     self.norm_dist[i][d][x] = normalized
 
         # Calculates bearings between stars
@@ -183,8 +185,8 @@ class Map(Atlas):
                 m_dec = m.radians(master['cal_de'])
                 t_ra = m.radians(target['cal_ra'])
                 t_dec = m.radians(target['cal_de'])
-                x = m.cos(t_dec) * m.sin(t_ra-m_ra)
-                y = m.cos(m_dec) * m.sin(t_dec) - m.sin(m_dec) * m.cos(t_dec) * m.cos(t_ra-m_ra)
+                x = m.cos(t_dec) * m.sin(t_ra - m_ra)
+                y = m.cos(m_dec) * m.sin(t_dec) - m.sin(m_dec) * m.cos(t_dec) * m.cos(t_ra - m_ra)
                 ang = m.degrees(m.atan2(x, y))
                 self.angles[active_hip][t] = -ang
 
@@ -195,9 +197,9 @@ class Map(Atlas):
                 self.norm_ang[i][s] = {}
                 secondary = self.angles[i][s]
                 for x in self.angles[i]:
-                    normalized = secondary-self.angles[i][x]
+                    normalized = secondary - self.angles[i][x]
                     if normalized > 180:
-                        normalized = normalized-360
+                        normalized = normalized - 360
                     elif normalized < -180:
                         normalized += 360
                     self.norm_ang[i][s][x] = normalized
