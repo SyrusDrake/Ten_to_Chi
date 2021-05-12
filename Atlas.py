@@ -1,5 +1,5 @@
 import math as m
-import shelve
+import pickle
 from pathlib import Path
 import os
 import tkinter.filedialog
@@ -21,8 +21,8 @@ class Atlas:
     def createAtlas(self):
         if (self.step_size == 0):
             # Only creates one map if only one date is selected
-            self.atlas[f"map_{0}BP"] = Map(0, self)
-            self.atlas[f"map_{0}BP"].createMap()
+            self.atlas[f"map_{self.ybp_min}BP"] = Map(self.ybp_min, self)
+            self.atlas[f"map_{self.ybp_min}BP"].createMap()
 
         else:
             for x in range(self.ybp_min, self.ybp_max + 1, self.step_size):
@@ -46,9 +46,9 @@ class Atlas:
 
         for map in self.atlas:
             filename = os.path.join(path, f"Map_{int(self.atlas[map].ybp/1000)}k BP.map")
-            s = shelve.open(filename)
-            s["map"] = self.atlas[map]
-            s.close()
+            file = open(filename, 'wb')
+            pickle.dump(self.atlas[map], file)
+            file.close()
 
 
 class Map(Atlas):

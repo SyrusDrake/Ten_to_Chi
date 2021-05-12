@@ -1,6 +1,6 @@
 # Florian Fruehwirth
 # Main GUI for the app with different pages for different functions
-# Last change: 07.03.2021
+# Last change: 03.05.2021
 # Frame-switching based on:
 # https://www.geeksforgeeks.org/tkinter-application-to-switch-between-different-page-frames/
 # Menubar-switching: https://stackoverflow.com/questions/37621071/tkinter-add-menu-bar-in-frames
@@ -9,6 +9,7 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 import SetMarkers as mk
 from PIL import ImageTk, Image
+import pickle
 import shelve
 from Atlas import *
 from Astrolabe import *
@@ -193,20 +194,24 @@ class UserMapPage(tk.Frame):
             save_list[ID]['x'] = self.markers.marker_list[i]['x']
             save_list[ID]['y'] = self.markers.marker_list[i]['y']
             x += 1
-        # print(f'Saved list: {save_list}')
-        save_file = shelve.open(filename, "n")
-        save_file['marker_list'] = save_list
+        data = {}
+        data['marker_list'] = save_list
         if self.img_save is not None:
-            save_file['image'] = self.img_save
-        save_file.close()
+            data['image'] = self.img_save
+        file = open(filename, 'wb')
+        pickle.dump(data, file)
+        file.close()
 
     def load_pattern(self):
         # Loading a pattern and the corresponding image.
-        loadfile = filedialog.askopenfilename(filetypes=[('Patterns', '*.ptn')])
-        self.img = shelve.open(loadfile)['image']
+        filename = filedialog.askopenfilename(filetypes=[('Patterns', '*.ptn')])
+        file = open(filename, 'rb')
+        data = pickle.load(file)
+        file.close()
+        self.img = data['image']
         self.img = ImageTk.PhotoImage(self.img)
         self.canvas.create_image(10, 10, anchor='nw', image=self.img)
-        marker_list = shelve.open(loadfile)['marker_list']
+        marker_list = data['marker_list']
         # Loops through the list of markers and "manually" sets them, just like the user would
         for m in marker_list:
             self.markers.add_marker(marker_list[m]['x'], marker_list[m]['y'], self.canvas, 'white')
@@ -229,8 +234,8 @@ class StarMapPage(tk.Frame):
         self.mag_scale.grid(row=1, pady=20)
 
         self.timescale = tk.Label(self, text='Timescale', bg=self.c_label, fg=self.c_text)
-        self.start_scale = tk.Scale(self, label='Initial Year', from_=0, to=60000, resolution=1000, orient='horizontal', command=self.update_start)
-        self.end_scale = tk.Scale(self, label='Final Year', from_=0, to=60000, resolution=1000, orient='horizontal', command=self.update_end)
+        self.start_scale = tk.Scale(self, label='Initial Year (ybp)', from_=0, to=60000, resolution=1000, orient='horizontal', command=self.update_start)
+        self.end_scale = tk.Scale(self, label='Final Year (ybp)', from_=0, to=60000, resolution=1000, orient='horizontal', command=self.update_end)
         self.end_scale.set(60000)
         self.step_scale = tk.Scale(self, label='Step Size', from_=500, to=60000, resolution=500, orient='horizontal')
 
@@ -388,15 +393,20 @@ class AstrolabePage(tk.Frame):
         self.grid_columnconfigure(1, weight=1)
 
     def choose_pattern(self):
-        file = filedialog.askopenfilename(filetypes=[('Patterns', '*.ptn')])
-        self.markers = shelve.open(file)['marker_list']
-        self.pattern_label.configure(text=path.basename(file))
+        filename = filedialog.askopenfilename(filetypes=[('Patterns', '*.ptn')])
+        file = open(filename, 'rb')
+        data = pickle.load(file)
+        self.markers = data['marker_list']
+        file.close()
+        self.pattern_label.configure(text=path.basename(filename))
         self.pattern_set = True
 
     def choose_map(self):
-        file = filedialog.askopenfilename(filetypes=[('Maps', '*.map')])
-        self.map = shelve.open(file)['map']
-        self.map_label.configure(text=path.basename(file))
+        filename = filedialog.askopenfilename(filetypes=[('Maps', '*.map')])
+        file = open(filename, 'rb')
+        self.map = pickle.load(file)
+        file.close()
+        self.map_label.configure(text=path.basename(filename))
         self.map_set = True
 
     def commence(self):
