@@ -1,34 +1,55 @@
 # Florian Fruehwirth
-# Main GUI for the app with different pages for different functions
-# Last change: 03.05.2021
-# Frame-switching based on:
-# https://www.geeksforgeeks.org/tkinter-application-to-switch-between-different-page-frames/
-# Menubar-switching: https://stackoverflow.com/questions/37621071/tkinter-add-menu-bar-in-frames
+# Main app with different pages for different functions
+# Last change: 13.05.2021
+
+"""The main app and GUI.
+
+The GUI is organized in "pages" with various functions. Actual calculations and
+other functionality is handled by imported modules.
+
+Sources:
+    This code uses some concepts and code-passages from other authors:
+
+    `Frame Switching`_
+
+    `Menubar Switching`_
+
+
+.. _Frame Switching:
+    https://www.geeksforgeeks.org/tkinter-application-to-switch-between-different-page-frames/
+.. _Menubar Switching:
+    https://stackoverflow.com/questions/37621071/tkinter-add-menu-bar-in-frames
+"""
 
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
-import SetMarkers as mk
 from PIL import ImageTk, Image
-import pickle
-import shelve
-from Atlas import *
-from Astrolabe import *
 from threading import Thread
 from os import path
+import pickle
+import SetMarkers as mk
+from Atlas import *
+from Astrolabe import *
 
 
 class App(tk.Tk):
+    """The main class that starts the app and keeps it running.
+
+    In this class, the frames are created, as well as the functions to switch
+    between them.
+    """
+
     def __init__(self):
         tk.Tk.__init__(self)
 
-        # List of all used frames
-        # They're NOT strings but actual classes.
-        frames = [
+        self.frames = [
             StartPage,
             UserMapPage,
             StarMapPage,
             AstrolabePage
         ]
+        """list of classes:  List of all used frames. They're NOT strings but
+        actual classes. Any new frame-class created must be added to this list!"""
 
         # Creates a container for all the pages (should never be visible)
         frame_container = tk.Frame(self, bg='red')
@@ -40,7 +61,7 @@ class App(tk.Tk):
         self.framedict = {}
 
         # Fills the dictionary. Keys=names defined above; values=instances of the classes below
-        for frame in (frames):
+        for frame in (self.frames):
             name = frame.__name__  # The name of the class currently being called
             new_frame = frame(location=frame_container, controller=self)
             self.framedict[name] = new_frame
@@ -49,8 +70,12 @@ class App(tk.Tk):
         # Starts the app with the start page
         self.show_frame('StartPage')
 
-    # Function that calls up any frame in the dictionary
     def show_frame(self, page_name):
+        """Calls up any frame in the dictionary.
+
+        Args:
+            page_name (str): The name of the frame class to be raised.
+        """
         frame = self.framedict[page_name]
         frame.tkraise()
 
@@ -59,14 +84,21 @@ class App(tk.Tk):
 
 
 class StartPage(tk.Frame):
+    """The frame that is displayed by default as soon as the app is run.
+
+    Args:
+        location (:obj:`tk.Frame`): "Master"-Frame into which the frame is
+            loaded.
+        controller (:obj:`class`): Controller-class in which the frame-switching
+            function is defined.
+    """
 
     def __init__(self, location, controller):
-        self.c_background = '#02385C'
-        self.c_label = "#02385C"
-        self.c_button = "#024977"
-        tk.Frame.__init__(self, location, bg=self.c_background)
 
-        # title = tk.Label(self, text='Start page', bg=self.c_label)
+        self.c_background = '#02385C'   #: Background color of the frame.
+        self.c_label = "#02385C"        #: Text color of the labels
+        self.c_button = "#024977"       #: Background color of the buttons
+        tk.Frame.__init__(self, location, bg=self.c_background)
 
         usermap_lable = tk.Label(self, text='Create a pattern map from an image', bg=self.c_label)
         usermap_button = tk.Button(self, text='User Map', command=lambda: controller.show_frame('UserMapPage'), bg=self.c_button)
@@ -77,7 +109,6 @@ class StartPage(tk.Frame):
         astrolabe_lable = tk.Label(self, text='Search for a specific pattern in the stars', bg=self.c_label)
         astrolabe_button = tk.Button(self, text='Astrolabe', command=lambda: controller.show_frame('AstrolabePage'), bg=self.c_button)
 
-        # title.grid(row=0, pady=20)
         usermap_lable.grid(row=1, pady=(20, 0))
         usermap_button.grid(row=2, pady=(0, 20))
         starmap_lable.grid(row=3, pady=5)
@@ -86,10 +117,14 @@ class StartPage(tk.Frame):
         astrolabe_button.grid(row=6, pady=(0, 20))
 
         self.grid_columnconfigure(0, weight=1)
-        # self.grid_rowconfigure(0, weight=1)
 
-    # Defines a menubar class to add different menu bars to different pages. Is repeated accordingly on other pages.
     def menubar(self, root):
+        """Defines the menu bar. Is repeated accordingly on other pages.
+
+        Returns:
+            :obj:`tk.Menu`: Returns a tk-object because function does not
+            draw menubar itself. Drawing happens in App-class.
+        """
         menubar = tk.Menu(root)
         menubar.add_command(label="Start Page")
 
@@ -104,13 +139,24 @@ class StartPage(tk.Frame):
 
 class UserMapPage(tk.Frame):
 
+    """User Map Page
+
+    Where users input their own pattern.
+
+    Args:
+        location (:obj:`tk.Frame`): "Master"-Frame into which the frame is
+            loaded.
+        controller (:obj:`class`): Controller-class in which the frame-switching
+            function is defined.
+    """
+
     def __init__(self, location, controller):
         self.markers = mk.Markers()
 
-        self.c_background = '#E1DEC6'
-        self.c_label = "#E1DEC6"
-        self.c_button = "#D7D2B2"
-        self.c_text = "black"
+        self.c_background = '#E1DEC6'   #: Background color of the frame.
+        self.c_label = "#E1DEC6"        #: Text color of the labels
+        self.c_button = "#D7D2B2"       #: Background color of the buttons
+        self.c_text = "black"           #: Text color of the buttons
         tk.Frame.__init__(self, location, bg=self.c_background)
 
         self.import_button = tk.Button(self, text='Import Image', command=lambda: self.import_image(), bg=self.c_button, fg=self.c_text)
@@ -136,6 +182,13 @@ class UserMapPage(tk.Frame):
         self.grid_rowconfigure(1, weight=1)
 
     def menubar(self, root):
+
+        """Defines the menu bar. Is repeated accordingly on other pages.
+
+        Returns:
+            :obj:`tk.Menu`: Returns a tk-object because function does not
+            draw menubar itself. Drawing happens in App-class.
+        """
         menubar = tk.Menu(root)
 
         current_menu = tk.Menu(menubar, tearoff=0)
@@ -155,7 +208,8 @@ class UserMapPage(tk.Frame):
         return menubar
 
     def import_image(self):
-        # function to import the reference image
+        """Function to import and automatically resize reference images.
+        """
         max_size = 1024
         # The explorer window to let the user pick the file
         filename = filedialog.askopenfilename(filetypes=[('Image files', '*.jpg *.png *.jpeg')])
@@ -183,8 +237,8 @@ class UserMapPage(tk.Frame):
         self.canvas.create_image(10, 10, anchor='nw', image=self.img)
 
     def save_pattern(self):
-        # Saves the pattern and the corresponding image.
-        print(self.markers.marker_list)
+        """Saves the pattern and the corresponding image.
+        """
         save_list = {}
         filename = filedialog.asksaveasfilename(filetypes=[('Pattern', '*.ptn')])
         x = 1
@@ -203,7 +257,8 @@ class UserMapPage(tk.Frame):
         file.close()
 
     def load_pattern(self):
-        # Loading a pattern and the corresponding image.
+        """Loads a saved pattern along with its corresponding reference image.
+        """
         filename = filedialog.askopenfilename(filetypes=[('Patterns', '*.ptn')])
         file = open(filename, 'rb')
         data = pickle.load(file)
@@ -219,40 +274,55 @@ class UserMapPage(tk.Frame):
 
 class StarMapPage(tk.Frame):
 
+    """User Map Page
+
+    Where users input their own pattern.
+
+    Args:
+        location (:obj:`tk.Frame`): "Master"-Frame into which the frame is
+            loaded.
+        controller (:obj:`class`): Controller-class in which the frame-switching
+            function is defined.
+    """
+
     def __init__(self, location, controller):
 
-        self.c_background = '#04003F'
-        self.c_label = "#04003F"
-        self.c_button = "#06005D"
-        self.c_text = "white"
+        self.c_background = '#04003F'   #: Background color of the frame.
+        self.c_label = "#04003F"        #: Text color of the labels
+        self.c_button = "#06005D"       #: Background color of the buttons
+        self.c_text = "white"           #: Text color of the buttons
 
-        # self.stop_calculations = Event()
         tk.Frame.__init__(self, location, bg=self.c_background)
 
+        # Magnitude group
         self.mag_scale = tk.Scale(self, label='Magnitude', from_=1.0, to=6.5, resolution=0.5, orient='horizontal')
         self.mag_scale.set(4.5)
         self.mag_scale.grid(row=1, pady=20)
 
+        # Timescale group
         self.timescale = tk.Label(self, text='Timescale', bg=self.c_label, fg=self.c_text)
         self.start_scale = tk.Scale(self, label='Initial Year (ybp)', from_=0, to=60000, resolution=1000, orient='horizontal', command=self.update_start)
         self.end_scale = tk.Scale(self, label='Final Year (ybp)', from_=0, to=60000, resolution=1000, orient='horizontal', command=self.update_end)
         self.end_scale.set(60000)
         self.step_scale = tk.Scale(self, label='Step Size', from_=500, to=60000, resolution=500, orient='horizontal')
 
+        # Geographical position group
         self.position = tk.Label(self, text='Position in °N (int)', bg=self.c_label, fg=self.c_text)
         vpos = (self.register(self.validate_latitude), "%P")
         self.position_entry = tk.Entry(self, validate="key", validatecommand=vpos)
 
+        # Number of neighbours group
         self.neighbors = tk.Label(self, text='Number of nearest neighbours for each star to check', bg=self.c_label, fg=self.c_text)
         vnei = (self.register(self.validate_neighbors), "%P")
         self.ngh = tk.StringVar()
         self.ngh.set(100)
         self.neighbors_entry = tk.Entry(self, validate="key", validatecommand=vnei, textvariable=self.ngh)
 
+        # Progress bar
         self.progress_bar = ttk.Progressbar(self, orient='horizontal', length=100, mode='indeterminate')
         self.label_complete = tk.Label(self, text='Complete!', fg='green')
 
-        button_test = tk.Button(self, text="Start", command=self.commence, bg=self.c_button, fg=self.c_text)
+        button_start = tk.Button(self, text="Start", command=self.commence, bg=self.c_button, fg=self.c_text)
         # button_stop = tk.Button(self, text="Stop", command=self.stop_calculations.set)
         # button_stop.grid(row=12, pady=5)
 
@@ -264,15 +334,17 @@ class StarMapPage(tk.Frame):
         self.position_entry.grid(row=7)
         self.neighbors.grid(row=8, pady=(20, 0))
         self.neighbors_entry.grid(row=9)
-        button_test.grid(row=11, pady=5)
+        button_start.grid(row=11, pady=5)
 
         self.grid_columnconfigure(0, weight=1)
-        # self.grid_columnconfigure(1, weight=1)
-        # self.grid_columnconfigure(2, weight=1)
-        # self.grid_rowconfigure(0, weight=1)
-        # self.grid_rowconfigure(1, weight=1)
 
     def menubar(self, root):
+        """Defines the menu bar. Is repeated accordingly on other pages.
+
+        Returns:
+            :obj:`tk.Menu`: Returns a tk-object because function does not
+            draw menubar itself. Drawing happens in App-class.
+    """
         menubar = tk.Menu(root)
         menubar.add_command(label="Star Map")
 
@@ -285,7 +357,9 @@ class StarMapPage(tk.Frame):
         return menubar
 
     def commence(self):
-        # A separate "commence" function is needed to check conditions and intialize threading
+        """A separate "commence" function is needed to check conditions and intialize threading
+        """
+
         if (self.position_entry.get() == ""):
             messagebox.showwarning("Missing Latitude", "Please input a position between 0°N and 90°N")
         elif (int(self.neighbors_entry.get()) > 100):
@@ -302,7 +376,11 @@ class StarMapPage(tk.Frame):
                 Thread(target=self.calculate_atlas).start()
 
     def calculate_atlas(self):
-        # self.stop_calculations.clear()
+        """Calculating the "Atlas"
+
+        Commences calculations and creates as many maps as chosen by the user.
+        """
+
         self.label_complete.grid_forget()
         self.progress_bar.grid(row=10, pady=10)
         self.progress_bar.start(10)
@@ -318,27 +396,53 @@ class StarMapPage(tk.Frame):
         self.label_complete.grid(row=10, pady=10)
 
     # These two update functions are needed to adjust the BP-sliders in real time and make sure only logical conditions can be set
-    def update_start(self, x):
-        self.end_scale.config(from_=x)
-        year_diff = self.end_scale.get() - int(x)
+    def update_start(self, val):
+        """Timeframe sanity check
+
+        update_start and update_end functions are needed to adjust the
+        BP-sliders in real time and make sure only logical conditions can be set.
+
+        Args:
+            val (int): Current value of the slider.
+        """
+        self.end_scale.config(from_=val)
+        year_diff = self.end_scale.get() - int(val)
         self.step_scale.config(to=year_diff)
         if (year_diff == 0):
             self.step_scale.config(from_=0)
 
-    def update_end(self, x):
-        self.start_scale.config(to=x)
-        year_diff = int(x) - self.start_scale.get()
+    def update_end(self, val):
+        """Timeframe sanity check
+
+        update_start and update_end functions are needed to adjust the
+        BP-sliders in real time and make sure only logical conditions can be set.
+
+        Args:
+            val (int): Current value of the slider.
+        """
+        self.start_scale.config(to=val)
+        year_diff = int(val) - self.start_scale.get()
         self.step_scale.config(to=year_diff)
         if (year_diff == 0):
             self.step_scale.config(from_=0)
 
     def validate_latitude(self, input):
+        """Validate latitude
+
+        Real-time validation of the input field for the latitude. Makes sure that
+        neither non-numeric characters nor values over 90 can be entered.
+        """
         if input.isnumeric() and int(input) <= 90 or input == "":
             return True
         else:
             return False
 
     def validate_neighbors(self, input):
+        """Validate number of neighbors
+
+        Real-time validation of the input field for the neighbors. Makes sure
+        that neither non-numeric characters nor values over 5000 can be entered.
+        """
         if input.isnumeric() and int(input) <= 5000 or input == "":
             return True
         else:
@@ -346,39 +450,55 @@ class StarMapPage(tk.Frame):
 
 
 class AstrolabePage(tk.Frame):
+    """User Map Page
+
+        Where user map and star maps are compared.
+
+    Args:
+        location (:obj:`tk.Frame`): "Master"-Frame into which the frame is
+            loaded.
+        controller (:obj:`class`): Controller-class in which the frame-switching
+            function is defined.
+    """
 
     def __init__(self, location, controller):
 
-        self.c_background = '#867245'
-        self.c_label = "#867245"
-        self.c_button = "#7D6B40"
-        self.c_text = "white"
+        self.c_background = '#867245'   #: Background color of the frame.
+        self.c_label = "#867245"        #: Text color of the labels
+        self.c_button = "#7D6B40"       #: Background color of the buttons
+        self.c_text = "white"           #: Text color of the buttons
 
         self.pattern_set = False
         self.map_set = False
 
         tk.Frame.__init__(self, location, bg=self.c_background)
-        # self.label = tk.Label(self, text='This is the calculation screen')
+
+        # Pattern selection
         self.pattern_label = tk.Label(self, text='Choose a user pattern', bg=self.c_label, fg=self.c_text)
         self.pattern_button = tk.Button(self, text='Choose', command=self.choose_pattern, bg=self.c_button, fg=self.c_text)
+
+        # Map selection
         self.map_label = tk.Label(self, text='Choose a star map', bg=self.c_label, fg=self.c_text)
         self.map_button = tk.Button(self, text='Choose', command=self.choose_map, bg=self.c_button, fg=self.c_text)
+
+        # Precision settings
         self.precision_label = tk.Label(self, text="Adjust the search precision.", bg=self.c_label, fg=self.c_text)
         self.dist_dev = tk.Entry(self)
         self.dist_dev.insert(0, "3.9")
         self.ang_dev = tk.Entry(self)
         self.ang_dev.insert(0, "0.4")
 
+        # Debug file output
         self.checkbool = tk.BooleanVar()
         self.checkbool.set(False)
         self.debug_check = tk.Checkbutton(self, text='Create debug file?', variable=self.checkbool)
 
+        # Progress bar
         self.progress_bar = ttk.Progressbar(self, orient='horizontal', length=100, mode='indeterminate')
         self.label_complete = tk.Label(self, text='Complete!', fg='green')
 
         self.start_button = tk.Button(self, text='Start', command=self.commence, bg=self.c_button, fg=self.c_text)
 
-        # self.label.grid(row=0, columnspan=2)
         self.pattern_label.grid(row=1, columnspan=2, pady=(10, 0))
         self.pattern_button.grid(row=2, columnspan=2)
         self.map_label.grid(row=3, columnspan=2, pady=(10, 0))
@@ -393,6 +513,9 @@ class AstrolabePage(tk.Frame):
         self.grid_columnconfigure(1, weight=1)
 
     def choose_pattern(self):
+        """Lets the user load a pattern file and sets the corresponding bool to true.
+        """
+
         filename = filedialog.askopenfilename(filetypes=[('Patterns', '*.ptn')])
         file = open(filename, 'rb')
         data = pickle.load(file)
@@ -402,6 +525,9 @@ class AstrolabePage(tk.Frame):
         self.pattern_set = True
 
     def choose_map(self):
+        """Lets the user load a star map and sets the corresponding bool to true.
+        """
+
         filename = filedialog.askopenfilename(filetypes=[('Maps', '*.map')])
         file = open(filename, 'rb')
         self.map = pickle.load(file)
@@ -410,7 +536,8 @@ class AstrolabePage(tk.Frame):
         self.map_set = True
 
     def commence(self):
-        # A commence function is needed to check conditions and initiate threading
+        """A separate "commence" function is needed to check conditions and intialize threading
+        """
         if (self.pattern_set is False):
             messagebox.showwarning("Missing Pattern", "Please select a user pattern")
         elif (self.map_set is False):
@@ -419,6 +546,11 @@ class AstrolabePage(tk.Frame):
             Thread(target=self.calculate_astrolabe).start()
 
     def calculate_astrolabe(self):
+        """Starts the comparison calculations
+
+        All chosen parameters are passen to the Astrolabe-class for use.
+        """
+
         self.label_complete.grid_forget()
         self.progress_bar.grid(row=7, columnspan=2, pady=10)
         self.progress_bar.start(10)
@@ -431,6 +563,12 @@ class AstrolabePage(tk.Frame):
         self.label_complete.grid(row=7, columnspan=2, pady=10)
 
     def menubar(self, root):
+        """Defines the menu bar. Is repeated accordingly on other pages.
+
+        Returns:
+            :obj:`tk.Menu`: Returns a tk-object because function does not
+            draw menubar itself. Drawing happens in App-class.
+    """
         menubar = tk.Menu(root)
         menubar.add_command(label="Astrolabe")
 
@@ -443,9 +581,10 @@ class AstrolabePage(tk.Frame):
         return menubar
 
 
-app = App()
-app.title("Ten to Chi")
-icon = tk.PhotoImage(file='icon.gif')
-app.tk.call('wm', 'iconphoto', app._w, icon)
-app.geometry('750x500+1400+400')
-app.mainloop()
+if __name__ == '__main__':
+    app = App()
+    app.title("Ten to Chi")
+    icon = tk.PhotoImage(file='icon.gif')
+    app.tk.call('wm', 'iconphoto', app._w, icon)
+    app.geometry('750x500+1400+400')
+    app.mainloop()
