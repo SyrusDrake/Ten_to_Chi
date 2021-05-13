@@ -1,0 +1,629 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>App module &mdash; Ten to Chi 1.0.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+
+  
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Astrolabe module" href="Astrolabe.html" />
+    <link rel="prev" title="Stoney_Skies" href="modules.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Ten to Chi
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Stoney_Skies</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">App module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Astrolabe.html">Astrolabe module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Atlas.html">Atlas module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SetMarkers.html">SetMarkers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sandbox.html">sandbox module</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Ten to Chi</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="modules.html">Stoney_Skies</a> &raquo;</li>
+        
+      <li>App module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/App.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-App">
+<span id="app-module"></span><h1>App module<a class="headerlink" href="#module-App" title="Permalink to this headline">¶</a></h1>
+<p>The main app and GUI.</p>
+<p>The GUI is organized in “pages” with various functions. Actual calculations and
+other functionality is handled by imported modules.</p>
+<dl>
+<dt>Sources:</dt><dd><p>This code uses some concepts and code-passages from other authors:</p>
+<p><a class="reference external" href="https://www.geeksforgeeks.org/tkinter-application-to-switch-between-different-page-frames/">Frame Switching</a></p>
+<p><a class="reference external" href="https://stackoverflow.com/questions/37621071/tkinter-add-menu-bar-in-frames">Menubar Switching</a></p>
+</dd>
+</dl>
+<dl class="py class">
+<dt class="sig sig-object py" id="App.App">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">App.</span></span><span class="sig-name descname"><span class="pre">App</span></span><a class="headerlink" href="#App.App" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tkinter.Tk</span></code></p>
+<p>The main class that starts the app and keeps it running.</p>
+<p>In this class, the frames are created, as well as the functions to switch
+between them.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="App.App.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#App.App.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a new Toplevel widget on screen SCREENNAME. A new Tcl interpreter will
+be created. BASENAME will be used for the identification of the profile file (see
+readprofile).
+It is constructed from sys.argv[0] without extensions if None is given. CLASSNAME
+is the name of the widget class.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="App.App.frames">
+<span class="sig-name descname"><span class="pre">frames</span></span><a class="headerlink" href="#App.App.frames" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of all used frames. They’re NOT strings but
+actual classes. Any new frame-class created must be added to this list!</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type</dt>
+<dd class="field-odd"><p>list of classes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.App.show_frame">
+<span class="sig-name descname"><span class="pre">show_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">page_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#App.App.show_frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calls up any frame in the dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>page_name</strong> (<em>str</em>) – The name of the frame class to be raised.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="App.AstrolabePage">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">App.</span></span><span class="sig-name descname"><span class="pre">AstrolabePage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#App.AstrolabePage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tkinter.Frame</span></code></p>
+<p>User Map Page</p>
+<blockquote>
+<div><p>Where user map and star maps are compared.</p>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>location</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">tk.Frame</span></code>) – “Master”-Frame into which the frame is
+loaded.</p></li>
+<li><p><strong>controller</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">class</span></code>) – Controller-class in which the frame-switching
+function is defined.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="App.AstrolabePage.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#App.AstrolabePage.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a frame widget with the parent MASTER.</p>
+<p>Valid resource names: background, bd, bg, borderwidth, class,
+colormap, container, cursor, height, highlightbackground,
+highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="App.AstrolabePage.c_background">
+<span class="sig-name descname"><span class="pre">c_background</span></span><a class="headerlink" href="#App.AstrolabePage.c_background" title="Permalink to this definition">¶</a></dt>
+<dd><p>Background color of the frame.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="App.AstrolabePage.c_button">
+<span class="sig-name descname"><span class="pre">c_button</span></span><a class="headerlink" href="#App.AstrolabePage.c_button" title="Permalink to this definition">¶</a></dt>
+<dd><p>Background color of the buttons</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="App.AstrolabePage.c_label">
+<span class="sig-name descname"><span class="pre">c_label</span></span><a class="headerlink" href="#App.AstrolabePage.c_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Text color of the labels</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="App.AstrolabePage.c_text">
+<span class="sig-name descname"><span class="pre">c_text</span></span><a class="headerlink" href="#App.AstrolabePage.c_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Text color of the buttons</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.AstrolabePage.calculate_astrolabe">
+<span class="sig-name descname"><span class="pre">calculate_astrolabe</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#App.AstrolabePage.calculate_astrolabe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts the comparison calculations</p>
+<p>All chosen parameters are passen to the Astrolabe-class for use.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.AstrolabePage.choose_map">
+<span class="sig-name descname"><span class="pre">choose_map</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#App.AstrolabePage.choose_map" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lets the user load a star map and sets the corresponding bool to true.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.AstrolabePage.choose_pattern">
+<span class="sig-name descname"><span class="pre">choose_pattern</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#App.AstrolabePage.choose_pattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lets the user load a pattern file and sets the corresponding bool to true.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.AstrolabePage.commence">
+<span class="sig-name descname"><span class="pre">commence</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#App.AstrolabePage.commence" title="Permalink to this definition">¶</a></dt>
+<dd><p>A separate “commence” function is needed to check conditions and intialize threading</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.AstrolabePage.menubar">
+<span class="sig-name descname"><span class="pre">menubar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#App.AstrolabePage.menubar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the menu bar. Is repeated accordingly on other pages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Returns a tk-object because function does not
+draw menubar itself. Drawing happens in App-class.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tk.Menu</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="App.StarMapPage">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">App.</span></span><span class="sig-name descname"><span class="pre">StarMapPage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#App.StarMapPage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tkinter.Frame</span></code></p>
+<p>User Map Page</p>
+<p>Where users input their own pattern.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>location</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">tk.Frame</span></code>) – “Master”-Frame into which the frame is
+loaded.</p></li>
+<li><p><strong>controller</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">class</span></code>) – Controller-class in which the frame-switching
+function is defined.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="App.StarMapPage.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#App.StarMapPage.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a frame widget with the parent MASTER.</p>
+<p>Valid resource names: background, bd, bg, borderwidth, class,
+colormap, container, cursor, height, highlightbackground,
+highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="App.StarMapPage.c_background">
+<span class="sig-name descname"><span class="pre">c_background</span></span><a class="headerlink" href="#App.StarMapPage.c_background" title="Permalink to this definition">¶</a></dt>
+<dd><p>Background color of the frame.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="App.StarMapPage.c_button">
+<span class="sig-name descname"><span class="pre">c_button</span></span><a class="headerlink" href="#App.StarMapPage.c_button" title="Permalink to this definition">¶</a></dt>
+<dd><p>Background color of the buttons</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="App.StarMapPage.c_label">
+<span class="sig-name descname"><span class="pre">c_label</span></span><a class="headerlink" href="#App.StarMapPage.c_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Text color of the labels</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="App.StarMapPage.c_text">
+<span class="sig-name descname"><span class="pre">c_text</span></span><a class="headerlink" href="#App.StarMapPage.c_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Text color of the buttons</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.StarMapPage.calculate_atlas">
+<span class="sig-name descname"><span class="pre">calculate_atlas</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#App.StarMapPage.calculate_atlas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculating the “Atlas”</p>
+<p>Commences calculations and creates as many maps as chosen by the user.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.StarMapPage.commence">
+<span class="sig-name descname"><span class="pre">commence</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#App.StarMapPage.commence" title="Permalink to this definition">¶</a></dt>
+<dd><p>A separate “commence” function is needed to check conditions and intialize threading</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.StarMapPage.menubar">
+<span class="sig-name descname"><span class="pre">menubar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#App.StarMapPage.menubar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the menu bar. Is repeated accordingly on other pages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Returns a tk-object because function does not
+draw menubar itself. Drawing happens in App-class.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tk.Menu</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.StarMapPage.update_end">
+<span class="sig-name descname"><span class="pre">update_end</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#App.StarMapPage.update_end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Timeframe sanity check</p>
+<p>update_start and update_end functions are needed to adjust the
+BP-sliders in real time and make sure only logical conditions can be set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>val</strong> (<em>int</em>) – Current value of the slider.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.StarMapPage.update_start">
+<span class="sig-name descname"><span class="pre">update_start</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#App.StarMapPage.update_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Timeframe sanity check</p>
+<p>update_start and update_end functions are needed to adjust the
+BP-sliders in real time and make sure only logical conditions can be set.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>val</strong> (<em>int</em>) – Current value of the slider.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.StarMapPage.validate_latitude">
+<span class="sig-name descname"><span class="pre">validate_latitude</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#App.StarMapPage.validate_latitude" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate latitude</p>
+<p>Real-time validation of the input field for the latitude. Makes sure that
+neither non-numeric characters nor values over 90 can be entered.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.StarMapPage.validate_neighbors">
+<span class="sig-name descname"><span class="pre">validate_neighbors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#App.StarMapPage.validate_neighbors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validate number of neighbors</p>
+<p>Real-time validation of the input field for the neighbors. Makes sure
+that neither non-numeric characters nor values over 5000 can be entered.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="App.StartPage">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">App.</span></span><span class="sig-name descname"><span class="pre">StartPage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#App.StartPage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tkinter.Frame</span></code></p>
+<p>The frame that is displayed by default as soon as the app is run.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>location</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">tk.Frame</span></code>) – “Master”-Frame into which the frame is
+loaded.</p></li>
+<li><p><strong>controller</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">class</span></code>) – Controller-class in which the frame-switching
+function is defined.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="App.StartPage.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#App.StartPage.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a frame widget with the parent MASTER.</p>
+<p>Valid resource names: background, bd, bg, borderwidth, class,
+colormap, container, cursor, height, highlightbackground,
+highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="App.StartPage.c_background">
+<span class="sig-name descname"><span class="pre">c_background</span></span><a class="headerlink" href="#App.StartPage.c_background" title="Permalink to this definition">¶</a></dt>
+<dd><p>Background color of the frame.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="App.StartPage.c_button">
+<span class="sig-name descname"><span class="pre">c_button</span></span><a class="headerlink" href="#App.StartPage.c_button" title="Permalink to this definition">¶</a></dt>
+<dd><p>Background color of the buttons</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="App.StartPage.c_label">
+<span class="sig-name descname"><span class="pre">c_label</span></span><a class="headerlink" href="#App.StartPage.c_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Text color of the labels</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.StartPage.menubar">
+<span class="sig-name descname"><span class="pre">menubar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#App.StartPage.menubar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the menu bar. Is repeated accordingly on other pages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Returns a tk-object because function does not
+draw menubar itself. Drawing happens in App-class.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tk.Menu</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="App.UserMapPage">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">App.</span></span><span class="sig-name descname"><span class="pre">UserMapPage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#App.UserMapPage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tkinter.Frame</span></code></p>
+<p>User Map Page</p>
+<p>Where users input their own pattern.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>location</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">tk.Frame</span></code>) – “Master”-Frame into which the frame is
+loaded.</p></li>
+<li><p><strong>controller</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">class</span></code>) – Controller-class in which the frame-switching
+function is defined.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="App.UserMapPage.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">controller</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#App.UserMapPage.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a frame widget with the parent MASTER.</p>
+<p>Valid resource names: background, bd, bg, borderwidth, class,
+colormap, container, cursor, height, highlightbackground,
+highlightcolor, highlightthickness, relief, takefocus, visual, width.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="App.UserMapPage.c_background">
+<span class="sig-name descname"><span class="pre">c_background</span></span><a class="headerlink" href="#App.UserMapPage.c_background" title="Permalink to this definition">¶</a></dt>
+<dd><p>Background color of the frame.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="App.UserMapPage.c_button">
+<span class="sig-name descname"><span class="pre">c_button</span></span><a class="headerlink" href="#App.UserMapPage.c_button" title="Permalink to this definition">¶</a></dt>
+<dd><p>Background color of the buttons</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="App.UserMapPage.c_label">
+<span class="sig-name descname"><span class="pre">c_label</span></span><a class="headerlink" href="#App.UserMapPage.c_label" title="Permalink to this definition">¶</a></dt>
+<dd><p>Text color of the labels</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="App.UserMapPage.c_text">
+<span class="sig-name descname"><span class="pre">c_text</span></span><a class="headerlink" href="#App.UserMapPage.c_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Text color of the buttons</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.UserMapPage.import_image">
+<span class="sig-name descname"><span class="pre">import_image</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#App.UserMapPage.import_image" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function to import and automatically resize reference images.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.UserMapPage.load_pattern">
+<span class="sig-name descname"><span class="pre">load_pattern</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#App.UserMapPage.load_pattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a saved pattern along with its corresponding reference image.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.UserMapPage.menubar">
+<span class="sig-name descname"><span class="pre">menubar</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">root</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#App.UserMapPage.menubar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Defines the menu bar. Is repeated accordingly on other pages.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Returns a tk-object because function does not
+draw menubar itself. Drawing happens in App-class.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">tk.Menu</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="App.UserMapPage.save_pattern">
+<span class="sig-name descname"><span class="pre">save_pattern</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#App.UserMapPage.save_pattern" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the pattern and the corresponding image.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="Astrolabe.html" class="btn btn-neutral float-right" title="Astrolabe module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="modules.html" class="btn btn-neutral float-left" title="Stoney_Skies" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Florian Frühwirth.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
