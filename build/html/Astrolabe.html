@@ -40,7 +40,9 @@
 
     
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Atlas module" href="Atlas.html" />
+    <link rel="prev" title="App module" href="App.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -85,11 +87,18 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Astrolabe module</a></li>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Stoney_Skies</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="App.html">App module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Astrolabe module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Atlas.html">Atlas module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SetMarkers.html">SetMarkers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sandbox.html">sandbox module</a></li>
 </ul>
-</div>
+</li>
+</ul>
+
             
           
         </div>
@@ -136,6 +145,8 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
+          <li><a href="modules.html">Stoney_Skies</a> &raquo;</li>
+        
       <li>Astrolabe module</li>
     
     
@@ -157,10 +168,26 @@
             
   <div class="section" id="module-Astrolabe">
 <span id="astrolabe-module"></span><h1>Astrolabe module<a class="headerlink" href="#module-Astrolabe" title="Permalink to this headline">¶</a></h1>
+<p>“Astrolabe” module that handles comparative calculations.</p>
+<p>This modules conducts the comparison calculations between the user input
+patterns and the star maps.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="Astrolabe.Astrolabe">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">Astrolabe.</span></span><span class="sig-name descname"><span class="pre">Astrolabe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starmap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_dev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ang_dev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug_bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Astrolabe.Astrolabe" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>user_map</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">User</span> <span class="pre">Map</span></code>) – User-defined pattern</p></li>
+<li><p><strong>starmap</strong> (<code class="xref py py-obj docutils literal notranslate"><span class="pre">Star</span> <span class="pre">Map</span></code>) – Current star map to be used for comparison</p></li>
+<li><p><strong>dist_dev</strong> (<em>float</em>) – Acceptable deviation from given distances for an
+accepted hit.</p></li>
+<li><p><strong>ang_dev</strong> (<em>float</em>) – Acceptable deviation from given distances for an
+accepted hit.</p></li>
+<li><p><strong>debug_bool</strong> (<em>bool</em>) – Whether a debud file should be created.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="Astrolabe.Astrolabe.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_map</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">starmap</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dist_dev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ang_dev</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">debug_bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Astrolabe.Astrolabe.__init__" title="Permalink to this definition">¶</a></dt>
@@ -170,22 +197,46 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="Astrolabe.Astrolabe.calculate">
 <span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Astrolabe.Astrolabe.calculate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Main calculation function</p>
+<p>Compares user patterns and star maps by subtracting all possible star
+values (angles and distances) from all possible marker values.
+Matches are recorded and written into a new file.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="Astrolabe.Astrolabe.calculate_marker_bearings">
 <span class="sig-name descname"><span class="pre">calculate_marker_bearings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Astrolabe.Astrolabe.calculate_marker_bearings" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates distances between markers</p>
+<p>The list of markers is passed as a list of coordinates, so angles and
+distances between them first need to be calculated. Angles are
+also “normalized”, i.e. one bearing is set to 0 and all angles are
+expressed relative to that bearing.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="Astrolabe.Astrolabe.calculate_marker_distances">
 <span class="sig-name descname"><span class="pre">calculate_marker_distances</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Astrolabe.Astrolabe.calculate_marker_distances" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates distances between markers</p>
+<p>The list of markers is passed as a list of coordinates, so angles and
+distances between them first need to be calculated. Distances are
+also “normalized”, i.e. one distance is set to 1 and all others
+expressed as multiples of this unit length.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="Astrolabe.Astrolabe.make_file">
 <span class="sig-name descname"><span class="pre">make_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_file</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Astrolabe.Astrolabe.make_file" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Creates the output file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_file</strong> (<em>str</em>) – New filename. Usually the current date</p></li>
+<li><p><strong>current</strong> (<em>int</em>) – Identifier to prevent naming conflicts. Is “seeded”
+with 0 and increases by one until no more naming conflict is detected.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="Astrolabe.Astrolabe.write">
@@ -201,6 +252,10 @@
            
           </div>
           <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="Atlas.html" class="btn btn-neutral float-right" title="Atlas module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="App.html" class="btn btn-neutral float-left" title="App module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
 
   <hr/>
 

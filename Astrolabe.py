@@ -1,9 +1,26 @@
+""""Astrolabe" module that handles comparative calculations.
+
+This modules conducts the comparison calculations between the user input
+patterns and the star maps.
+"""
+
 import math as m
 from os import path
 from datetime import date
 
 
 class Astrolabe:
+
+    """
+    Args:
+        user_map (:obj:`User Map`): User-defined pattern
+        starmap (:obj:`Star Map`): Current star map to be used for comparison
+        dist_dev (float): Acceptable deviation from given distances for an
+            accepted hit.
+        ang_dev (float): Acceptable deviation from given distances for an
+            accepted hit.
+        debug_bool (bool): Whether a debud file should be created.
+    """
 
     def __init__(self, user_map, starmap, dist_dev, ang_dev, debug_bool):
         self.matches = {}
@@ -22,6 +39,13 @@ class Astrolabe:
             self.debug = open("debug.txt", "w+")
 
     def calculate_marker_distances(self):
+        """Calculates distances between markers
+
+        The list of markers is passed as a list of coordinates, so angles and
+        distances between them first need to be calculated. Distances are
+        also "normalized", i.e. one distance is set to 1 and all others
+        expressed as multiples of this unit length.
+        """
         marker_distances = {}
         x1 = self.markers[list(self.markers.keys())[0]]['x']
         y1 = self.markers[list(self.markers.keys())[0]]['y']
@@ -42,6 +66,14 @@ class Astrolabe:
             self.normd_markers[i] = (marker_distances[i] / ref_values)
 
     def calculate_marker_bearings(self):
+        """Calculates distances between markers
+
+        The list of markers is passed as a list of coordinates, so angles and
+        distances between them first need to be calculated. Angles are
+        also "normalized", i.e. one bearing is set to 0 and all angles are
+        expressed relative to that bearing.
+        """
+
         # Calculates bearings like they would be calculated on a map
         bearings = {}
         x1 = self.markers['1']['x']
@@ -73,6 +105,14 @@ class Astrolabe:
             self.norma_markers[k] = temp_dict[k]
 
     def make_file(self, new_file, current):
+        """Creates the output file.
+
+        Args:
+            new_file (str): New filename. Usually the current date
+            current (int): Identifier to prevent naming conflicts. Is "seeded"
+                with 0 and increases by one until no more naming conflict is detected.
+        """
+
         if path.exists(new_file):
             self.make_file(f"{self.current_date}_{current+1}.txt", current + 1)
         else:
@@ -85,6 +125,12 @@ class Astrolabe:
             file.write("\n")
 
     def calculate(self):
+        """Main calculation function
+
+        Compares user patterns and star maps by subtracting all possible star
+        values (angles and distances) from all possible marker values.
+        Matches are recorded and written into a new file.
+        """
 
         for a in self.normd_star:
             for n in self.normd_star[a]:

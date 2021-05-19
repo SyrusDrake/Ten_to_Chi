@@ -1,3 +1,8 @@
+"""Atlas class
+
+Creation of the star maps based on user parameters.
+"""
+
 import math as m
 import pickle
 from pathlib import Path
@@ -6,7 +11,25 @@ import tkinter.filedialog
 
 
 class Atlas:
+    """The Atlas handles all common parameteres that are the same for a set of star
+    maps, such as observer position, mag limit, and so on.
 
+    Args:
+        latitude (int): Northern latitude of the observer. Southern currently
+            not supported.
+        ybp_min (int): Minimum years before present for which a map should be
+            calculated.
+        step_size (int): Step size in years between star maps
+        ybp_max (int): Maximum years before present for which a map should be
+            calculated.
+        mag_limit (float): Dimmest brightness of stars added to the map.
+
+            Note:
+                Smaller values correspond to higher brightness.
+        neighbours (int): Number of neighbouring stars for which calculations
+            should be performed.
+
+    """
     def __init__(self, latitude, ybp_min, step_size, ybp_max, mag_limit, neighbours):
         self.latitude = latitude  # Latitude of the observer
         self.step_size = step_size
@@ -19,6 +42,8 @@ class Atlas:
         self.atlas = {}
 
     def createAtlas(self):
+        """Creates the collection of maps based on the time span selected.
+        """
         if (self.step_size == 0):
             # Only creates one map if only one date is selected
             self.atlas[f"map_{self.ybp_min}BP"] = Map(self.ybp_min, self)
@@ -32,6 +57,10 @@ class Atlas:
         self.save()
 
     def save(self):
+        """Saving the star maps
+
+        Creates save files with naming scheme based on their parameters.
+        """
         min = int(self.ybp_min / 1000)
         max = int(self.ybp_max / 1000)
         default = Path.cwd() / "Atlases" / f"Atlas_{self.latitude}N_{min}k-{max}k"
@@ -54,6 +83,13 @@ class Atlas:
 class Map(Atlas):
 
     def __init__(self, ybp, parent):
+        """Individual star map
+
+        Inherits most necessary parameters from ``Atlas``.
+
+        Args:
+            ypb (int): Years before present for which star map should be calculated.
+        """
         super().__init__(parent.latitude, parent.ybp_min, parent.step_size, parent.ybp_max, parent.mag_limit, parent.neighbours)
         self.ybp = ybp
         self.stars = []  # Empty list of stars
@@ -63,7 +99,17 @@ class Map(Atlas):
         self.norm_ang = {}
 
     def calculate_new_coordinates(self, ra, de, pm_ra, pm_de, ybp):
-        # Calculates new positions of stars from their proper motions
+        """Calculates new positions of stars from their proper motions
+
+        Args:
+            ra (float): Current right ascension of the star.
+            de (float): Current declination of the star.
+            pm_ra (float): Current right ascension element of the star's proper
+                motion.
+            pm_de (float): Current declination element of the star's proper
+                motion.
+            ybp (int): Years before present
+        """
         if (pm_ra * ybp >= 360):
             new_ra = ra + ((pm_ra * ybp) % 360)
         else:
@@ -90,14 +136,24 @@ class Map(Atlas):
 
     # get all stars
     def chop(self, line):
+        """Splits input lines at separator
+
+        Foreign function. Splits lines of the HIP-star-catalogue along seperator.
+        """
         choppedline = []
         list_with_space = line.rsplit('|')
         for item in list_with_space:
             choppedline.append(item.strip())    # Removes whitepsaces (?)
         return choppedline
 
-    # Function to calculate angular distance between stars
-    def calculate_angular_distance(self, active_entry, target_entry):  # Takes HIP IDs as input
+    def calculate_angular_distance(self, active_entry, target_entry):
+        """Function to calculate angular distance between stars
+
+        Args:
+            active_entry (int): The star from which the angular distance is
+                measured.
+            target_entry (int): The star to which the angular distance is measured.
+        """
 
         ra1 = active_entry['ra']
         dec1 = active_entry['de']
@@ -114,6 +170,9 @@ class Map(Atlas):
         return ang
 
     def createMap(self):
+        """Creates map, returning a nested dictionary of distance and angle
+        values of each star to a number of neighbours, selected by the user.
+        """
         self.hip = open('hip_main.dat')  # The HIP catalogue
         # self.hip = open('hip_test.dat')
         lines = self.hip.readlines()  # Puts every line of the catalog in an list item

@@ -40,7 +40,9 @@
 
     
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="SetMarkers module" href="SetMarkers.html" />
+    <link rel="prev" title="Astrolabe module" href="Astrolabe.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -85,11 +87,18 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">Atlas module</a></li>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Stoney_Skies</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="App.html">App module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Astrolabe.html">Astrolabe module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Atlas module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="SetMarkers.html">SetMarkers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sandbox.html">sandbox module</a></li>
 </ul>
-</div>
+</li>
+</ul>
+
             
           
         </div>
@@ -136,6 +145,8 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
+          <li><a href="modules.html">Stoney_Skies</a> &raquo;</li>
+        
       <li>Atlas module</li>
     
     
@@ -157,10 +168,35 @@
             
   <div class="section" id="module-Atlas">
 <span id="atlas-module"></span><h1>Atlas module<a class="headerlink" href="#module-Atlas" title="Permalink to this headline">¶</a></h1>
+<p>Atlas class</p>
+<p>Creation of the star maps based on user parameters.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="Atlas.Atlas">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">Atlas.</span></span><span class="sig-name descname"><span class="pre">Atlas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">latitude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ybp_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ybp_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag_limit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbours</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Atlas.Atlas" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The Atlas handles all common parameteres that are the same for a set of star
+maps, such as observer position, mag limit, and so on.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>latitude</strong> (<em>int</em>) – Northern latitude of the observer. Southern currently
+not supported.</p></li>
+<li><p><strong>ybp_min</strong> (<em>int</em>) – Minimum years before present for which a map should be
+calculated.</p></li>
+<li><p><strong>step_size</strong> (<em>int</em>) – Step size in years between star maps</p></li>
+<li><p><strong>ybp_max</strong> (<em>int</em>) – Maximum years before present for which a map should be
+calculated.</p></li>
+<li><p><strong>mag_limit</strong> (<em>float</em>) – <p>Dimmest brightness of stars added to the map.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Smaller values correspond to higher brightness.</p>
+</div>
+</p></li>
+<li><p><strong>neighbours</strong> (<em>int</em>) – Number of neighbouring stars for which calculations
+should be performed.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="Atlas.Atlas.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">latitude</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ybp_min</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">step_size</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ybp_max</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mag_limit</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">neighbours</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Atlas.Atlas.__init__" title="Permalink to this definition">¶</a></dt>
@@ -170,12 +206,15 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="Atlas.Atlas.createAtlas">
 <span class="sig-name descname"><span class="pre">createAtlas</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Atlas.Atlas.createAtlas" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Creates the collection of maps based on the time span selected.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="Atlas.Atlas.save">
 <span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Atlas.Atlas.save" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Saving the star maps</p>
+<p>Creates save files with naming scheme based on their parameters.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -186,28 +225,62 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="Atlas.Map.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ybp</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Atlas.Map.__init__" title="Permalink to this definition">¶</a></dt>
-<dd><p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dd><p>Individual star map</p>
+<p>Inherits most necessary parameters from <code class="docutils literal notranslate"><span class="pre">Atlas</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>ypb</strong> (<em>int</em>) – Years before present for which star map should be calculated.</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="Atlas.Map.calculate_angular_distance">
 <span class="sig-name descname"><span class="pre">calculate_angular_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">active_entry</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_entry</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Atlas.Map.calculate_angular_distance" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Function to calculate angular distance between stars</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>active_entry</strong> (<em>int</em>) – The star from which the angular distance is
+measured.</p></li>
+<li><p><strong>target_entry</strong> (<em>int</em>) – The star to which the angular distance is measured.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="Atlas.Map.calculate_new_coordinates">
 <span class="sig-name descname"><span class="pre">calculate_new_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">de</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pm_ra</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pm_de</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ybp</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Atlas.Map.calculate_new_coordinates" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Calculates new positions of stars from their proper motions</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ra</strong> (<em>float</em>) – Current right ascension of the star.</p></li>
+<li><p><strong>de</strong> (<em>float</em>) – Current declination of the star.</p></li>
+<li><p><strong>pm_ra</strong> (<em>float</em>) – Current right ascension element of the star’s proper
+motion.</p></li>
+<li><p><strong>pm_de</strong> (<em>float</em>) – Current declination element of the star’s proper
+motion.</p></li>
+<li><p><strong>ybp</strong> (<em>int</em>) – Years before present</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="Atlas.Map.chop">
 <span class="sig-name descname"><span class="pre">chop</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#Atlas.Map.chop" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Splits input lines at separator</p>
+<p>Foreign function. Splits lines of the HIP-star-catalogue along seperator.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="Atlas.Map.createMap">
 <span class="sig-name descname"><span class="pre">createMap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#Atlas.Map.createMap" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Creates map, returning a nested dictionary of distance and angle
+values of each star to a number of neighbours, selected by the user.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -218,6 +291,10 @@
            
           </div>
           <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="SetMarkers.html" class="btn btn-neutral float-right" title="SetMarkers module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Astrolabe.html" class="btn btn-neutral float-left" title="Astrolabe module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
 
   <hr/>
 
