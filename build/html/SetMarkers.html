@@ -40,7 +40,9 @@
 
     
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" /> 
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="sandbox module" href="sandbox.html" />
+    <link rel="prev" title="Atlas module" href="Atlas.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -85,11 +87,18 @@
               
             
             
-              <!-- Local TOC -->
-              <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">SetMarkers module</a></li>
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Stoney_Skies</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="App.html">App module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Astrolabe.html">Astrolabe module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="Atlas.html">Atlas module</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">SetMarkers module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sandbox.html">sandbox module</a></li>
 </ul>
-</div>
+</li>
+</ul>
+
             
           
         </div>
@@ -136,6 +145,8 @@
     
       <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
         
+          <li><a href="modules.html">Stoney_Skies</a> &raquo;</li>
+        
       <li>SetMarkers module</li>
     
     
@@ -161,6 +172,7 @@
 <dt class="sig sig-object py" id="SetMarkers.Markers">
 <em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">SetMarkers.</span></span><span class="sig-name descname"><span class="pre">Markers</span></span><a class="headerlink" href="#SetMarkers.Markers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>The class for the user-added markers.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="SetMarkers.Markers.__init__">
 <span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#SetMarkers.Markers.__init__" title="Permalink to this definition">¶</a></dt>
@@ -170,17 +182,30 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="SetMarkers.Markers.add_marker">
 <span class="sig-name descname"><span class="pre">add_marker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SetMarkers.Markers.add_marker" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Adds the marker to the canvas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>int</em>) – x-coordinates of the circle.</p></li>
+<li><p><strong>y</strong> (<em>int</em>) – y-coordinates of the circle.</p></li>
+<li><p><strong>canvas</strong> – Parent canvas of the marker.</p></li>
+<li><p><strong>color</strong> – Fill-color of the marker.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="SetMarkers.Markers.clear_all">
 <span class="sig-name descname"><span class="pre">clear_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">canvas</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SetMarkers.Markers.clear_all" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Deletes all markers on the canvas and resets the ID.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="SetMarkers.Markers.delete_marker">
 <span class="sig-name descname"><span class="pre">delete_marker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">event</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">canvas</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#SetMarkers.Markers.delete_marker" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Function to delete the current marker under the mouse pointer.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -191,6 +216,10 @@
            
           </div>
           <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="sandbox.html" class="btn btn-neutral float-right" title="sandbox module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="Atlas.html" class="btn btn-neutral float-left" title="Atlas module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
 
   <hr/>
 

@@ -8,4 +8,3 @@ Stoney_Skies
    Astrolabe
    Atlas
    SetMarkers
-   sandbox
